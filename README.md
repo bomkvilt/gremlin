@@ -6,7 +6,7 @@ A set of CMake scripts that makes c ++ development a bit easier: Modules, Unit t
 - [unit tests](#Unit-tests) (for libraries with use of google test framework)
 - [unity build](#Unity-build) (with use of cotire script)
 - [precompiled headers](#Precompiled-headers) (default cotire behaviour)
-- [external projects](#External-projects) downloading (allows not to use third-party folders 
+- [external projects downloading](#External-projects) (allows not to use third-party folders 
 but load the library one at first configure time at specified place in building directory)
 
 ### Units
