@@ -13,6 +13,8 @@ but load the library one at first configure time at specified place in building 
 ```
     git submodule add https://github.com/bomkvilt/gremlin cmake/gremlin
 ```
+## Examples
+- [my static HTTP-server project](https://github.com/bomkvilt/2019-I-Highload)
 
 ### Units
 def. Unit - entity that contains any private and public states and can be connected to another unit. Their public states will be inherited.
