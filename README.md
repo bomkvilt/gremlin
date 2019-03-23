@@ -9,6 +9,11 @@ A set of CMake scripts that makes c ++ development a bit easier: Modules, Unit t
 - [external projects downloading](#External-projects) (allows not to use third-party folders 
 but load the library one at first configure time at specified place in building directory)
 
+## Downloading
+```
+    git submodule add https://github.com/bomkvilt/gremlin cmake/gremlin
+```
+
 ### Units
 def. Unit - entity that contains any private and public states and can be connected to another unit. Their public states will be inherited.
 Units can be defined with this way:
