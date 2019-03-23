@@ -6,8 +6,8 @@ A set of CMake scripts that makes c ++ development a bit easier: Modules, Unit t
 - [unit tests](#Unit-tests) (for libraries with use of google test framework)
 - [unity build](#Unity-build) (with use of cotire script)
 - [precompiled headers](#Precompiled-headers) (default cotire behaviour)
-- [external projects downloading](#External-projects) (allows not to use third-party folders 
-but load the library one at first configure time at specified place in building directory)
+- [external projects downloading](#External-projects) (allows not to use third-party folders but load the library one at first configure time at specified place in building directory)
+- [include guards](#Include-guards) (automatically generate and fix include guards for .h or .hpp files)
 
 ## Downloading
 ```
@@ -95,3 +95,16 @@ ExternalProject_Add( cotire
     TEST_COMMAND      ""
     )
 ```
+
+### Include guards
+Automatically generate top (e.g. file - test_file.hpp):
+```
+#ifndef TEST_FILE_HPP
+#define TEST_FILE_HPP
+```
+and bottom:
+```
+#endif //!TEST_FILE_HPP
+
+```
+guards.
