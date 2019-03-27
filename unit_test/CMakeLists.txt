@@ -24,5 +24,5 @@ foreach(target gtest gtest_main ${GN_tests_target})
 
 # enable initialisation of static variable inside static libraries...
 foreach(module ${modules})
-    SET_TARGET_PROPERTIES(${GN_tests_target} PROPERTIES LINK_FLAGS_DEBUG "/WHOLEARCHIVE:${module}")
+    SET_TARGET_PROPERTIES(${GN_tests_target} PROPERTIES LINK_FLAGS "/WHOLEARCHIVE:${module}")
     endforeach()

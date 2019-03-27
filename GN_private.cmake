@@ -145,9 +145,11 @@ function(GN_define this)
         # include self to @_libs
         list(APPEND ${this}_libs ${this})
         # register to tests
-        GN_get(tests "GN_tests_units")
-        list(APPEND tests ${this})
-        GN_set("GN_tests_units" "${tests}")
+        if (NOT "${${this}_src_test}" STREQUAL "")
+            GN_get(tests "GN_tests_units")
+            list(APPEND tests ${this})
+            GN_set("GN_tests_units" "${tests}")
+            endif()
         endif()
 
     # set global properties
