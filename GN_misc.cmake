@@ -39,7 +39,7 @@ function(GN_init_tests)
         endif()
         
     # download gtest
-    GN_Download_project(root "gtest" "${GN_dir_gremlin}/GN_loader_gtest.cmake")
+    GN_Download_project(root "gtest" "${GN_dir_gremlin}/loaders/GN_loader_gtest.cmake")
     
 	# setup gtest enviroment
 	enable_testing()

@@ -7,7 +7,7 @@ macro(GN_init_unity)
         GN_debug("unity build skipping...")
     else()
         # download cotire
-        GN_Download_project(root "cotire" "${GN_dir_gremlin}/GN_loader_cotire.cmake")
+        GN_Download_project(root "cotire" "${GN_dir_gremlin}/loaders/GN_loader_cotire.cmake")
         include("${root}/src/CMake/cotire.cmake")
         endif()
     endmacro()

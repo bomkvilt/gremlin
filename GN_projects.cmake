@@ -1,6 +1,10 @@
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~| external projects manager
 
+## Downloads a project and places it into s specified foler in a current build directory.
+#   \ resilt    - downloaded project root
+#   \ name      - project name
+#   \ loader    - cmake file will be executed to download the project | @see gremplin/loaders/[...]
 function(GN_Download_project _result name loader)
     # working directories
     set(root "${GN_dir_building}/projects/${name}")
