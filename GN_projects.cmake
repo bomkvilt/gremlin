@@ -17,7 +17,7 @@ function(GN_Download_project _result name loader)
         configure_file( "${loader}" "${down}/CMakeLists.txt")
 
         # execute the loader's cmake
-        execute_process(COMMAND ${CMAKE_COMMAND} -G "${CMAKE_GENERATOR}" .
+        execute_process(COMMAND ${CMAKE_COMMAND} -G "${CMAKE_GENERATOR}" -j${GN_processor} .
             WORKING_DIRECTORY "${down}"
             RESULT_VARIABLE result)
         if (result)
@@ -25,7 +25,7 @@ function(GN_Download_project _result name loader)
             endif()
 
         # execute the loader
-        execute_process(COMMAND ${CMAKE_COMMAND} --build .
+        execute_process(COMMAND ${CMAKE_COMMAND} --build -j${GN_processor} .
             RESULT_VARIABLE result
             WORKING_DIRECTORY "${down}")
         if(result) 

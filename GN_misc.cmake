@@ -1,6 +1,9 @@
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~| common
 
+include(ProcessorCount)
+
+
 macro(GN_project name)
     project(${name})
     set(CMAKE_CXX_STANDARD ${GN_cpp_version})
@@ -8,6 +11,13 @@ macro(GN_project name)
 
 macro(GN_return value)
     set(${_result} "${value}" PARENT_SCOPE)
+    endmacro()
+
+macro(GN_processor)
+    ProcessorCount(GN_cores)
+    if(GN_cores EQUAL 0)
+        set(GN_cores 1)
+        endif()
     endmacro()
 
 function(GN_get _result name)
@@ -37,7 +47,11 @@ function(GN_init_tests)
     if (NOT GN_bTests)
         return()
         endif()
-        
+    
+    # ctest
+    set(CTEST_BUILD_FLAGS -j${GN_processor})
+    set(ctest_test_args ${ctest_test_args} PARALLEL_LEVEL ${GN_processor})
+
     # download gtest
     GN_Download_project(root "gtest" "${GN_dir_gremlin}/loaders/GN_loader_gtest.cmake")
     
