@@ -1,6 +1,12 @@
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 macro(GN_setup_enviroment)
+    # place exe and libs into one direcory to simplify their linking
+    get_filename_component(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin" ABSOLUTE CACHE)
+    get_filename_component(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin" ABSOLUTE CACHE)
+    get_filename_component(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin" ABSOLUTE CACHE)
+    link_directories("${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")
+    # init project
     if (GN_bProduction)
         message(" << prduction mode << on")
         set(GN_bDebug   off	CACHE BOOL "" FORCE)
@@ -74,10 +80,9 @@ function(GN_read_libs _result this)
     # git all libs
     set(libs ${${this}_Libs} "")
     foreach(module ${${this}_modules})
-        GN_get(sublibs ${module}_libs) # << _libs
+        GN_get(sublibs ${module}_Libs) # << _Libs
         list(APPEND libs ${sublibs})
         endforeach()
-    list(REMOVE_DUPLICATES libs)
     list(REMOVE_ITEM libs "")
     # print sublibs
     GN_debug("|libraries|: \t ${libs}")
@@ -143,8 +148,8 @@ function(GN_define this)
 
     # define libraly
     if (${this}_bLink)
-        # include self to @_libs
-        list(APPEND ${this}_libs ${this})
+        # include self to @_Libs
+        list(APPEND ${this}_Libs ${this})
         # register to tests
         if (NOT "${${this}_src_test}" STREQUAL "")
             GN_get(tests "GN_tests_units")
@@ -155,7 +160,7 @@ function(GN_define this)
 
     # set global properties
     GN_set(${this}_modules "${${this}_modules}")
-    GN_set(${this}_defines "${${this}_defines}")
-    GN_set(${this}_libs    "${${this}_libs}")
+    GN_set(${this}_defines "${${this}_Definitions}")
+    GN_set(${this}_Libs    "${${this}_Libs}")
     GN_set(${this}_pub     "${dir_public};${dir_Public}")
     endfunction()

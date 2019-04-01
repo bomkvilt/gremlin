@@ -10,7 +10,6 @@ set(GN_dir_private	    "Private"       CACHE STRING "Unit private directory")
 set(GN_dir_public	    "Public"        CACHE STRING "Unit public directory")
 set(GN_dir_data		    "Data"	        CACHE STRING "Unit data directory")
 set(GN_dir_test		    "Test"	        CACHE STRING "Unit test directory")
-set(GN_dir_gremlin      "cmake/gremlin" CACHE STRING "gremlin directory path")
 # test settings
 set(GN_bTests 	        on		        CACHE BOOL "Enable tests")
 set(GN_tests_filter	    "_tests_"       CACHE STRING "Filter name for all test projects")
@@ -19,6 +18,10 @@ set(GN_tests_test       "tests_test"    CACHE STRING "test name")
 # unity building
 set(GN_bUnity           off		        CACHE BOOL "Enable unity building")
 
+# root directory
+set(GN_dir_gremlin "${CMAKE_CURRENT_LIST_DIR}" CACHE STRING "" FORCE)
+
+# submodules
 include("${GN_dir_gremlin}/GN_misc.cmake")
 include("${GN_dir_gremlin}/GN_private.cmake")
 include("${GN_dir_gremlin}/GN_headers.cmake")

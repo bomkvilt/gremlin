@@ -10,7 +10,7 @@ foreach(module ${modules})
 
     # create a testing target
     GB_Module( ${target}
-        Modules         ${modules}
+        Modules         ${module}
         Libs            gtest gtest_main
         Definitions     "-Dall_load"
         Mode            "app"

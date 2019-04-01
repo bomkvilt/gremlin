@@ -49,8 +49,8 @@ function(GN_init_tests)
         endif()
     
     # ctest
-    set(CTEST_BUILD_FLAGS -j${GN_processor})
-    set(ctest_test_args ${ctest_test_args} PARALLEL_LEVEL ${GN_processor})
+    set(CTEST_BUILD_FLAGS -j${GN_cores})
+    set(ctest_test_args ${ctest_test_args} PARALLEL_LEVEL ${GN_cores})
 
     # download gtest
     GN_Download_project(root "gtest" "${GN_dir_gremlin}/loaders/GN_loader_gtest.cmake")
