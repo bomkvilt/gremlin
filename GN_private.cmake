@@ -68,6 +68,7 @@ function(GN_read_modules _result this)
         GN_get(submodules ${module}_modules) # << _modules
         list(APPEND modules ${submodules})
         endforeach()
+    # list(APPEND modules ${${this}_Modules})
     list(REMOVE_DUPLICATES modules)
     list(REMOVE_ITEM modules "")
     # print submodules
@@ -91,7 +92,7 @@ function(GN_read_libs _result this)
     endfunction()
 
 function(GN_read_sources _result dir root bTest)
-    # if test are disabled
+    # if tests are disabled
     if ((NOT GN_bTests) AND bTest)
         return()
         endif()

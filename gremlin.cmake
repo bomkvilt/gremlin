@@ -23,6 +23,7 @@ set(GN_dir_gremlin "${CMAKE_CURRENT_LIST_DIR}" CACHE STRING "" FORCE)
 
 # submodules
 include("${GN_dir_gremlin}/GN_misc.cmake")
+include("${GN_dir_gremlin}/GN_tests.cmake")
 include("${GN_dir_gremlin}/GN_private.cmake")
 include("${GN_dir_gremlin}/GN_headers.cmake")
 include("${GN_dir_gremlin}/GN_projects.cmake")
@@ -66,13 +67,16 @@ function(GB_Module Name)
     GN_debug("\n----------------------------------------------------")
     GN_debug("|${this}::${${this}_Mode}::${${this}_dir_root}|")
     
-    # read sources
+    # read dependencies
     GN_read_modules(${this}_modules ${this})
     GN_read_libs   (${this}_libs    ${this})
+    
+    # read sources
     GN_read_sources(${this}_src_private ${${this}_dir_private} ${${this}_dir_root} off)
     GN_read_sources(${this}_src_public  ${${this}_dir_public}  ${${this}_dir_root} off)
     GN_read_sources(${this}_src_test    ${${this}_dir_test}    ${${this}_dir_root} on )
-    GN_read_sources(${this}_src_data    ${${this}_dir_data}    ${${this}_dir_root} off)
+
+    # print found sources
     GN_debug("| public|: \t${${this}_src_public}")
     GN_debug("|private|: \t${${this}_src_private}")
     GN_debug("|  tests|: \t${${this}_src_test}")

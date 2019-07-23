@@ -11,14 +11,14 @@ foreach(module ${modules})
     # create a testing target
     GB_Module( ${target}
         Modules         ${module}
-        Libs            gtest gtest_main
+        Libs            gtest
         Definitions     "-Dall_load"
         Mode            "app"
         bFlat           off)
 
     # create a ctest
-    add_test(NAME ${test} COMMAND ${target})
-    gtest_discover_tests(${target})
+    # add_test(NAME ${test} COMMAND ${target})
+    # gtest_discover_tests(${target})
 
     # move to specified filter
     foreach(target gtest gtest_main ${target})
@@ -26,5 +26,7 @@ foreach(module ${modules})
         endforeach()
 
     # enable initialisation of static variable inside static libraries...
-    SET_TARGET_PROPERTIES(${target} PROPERTIES LINK_FLAGS "/WHOLEARCHIVE:${module}")
+    if (MSVC)
+        SET_TARGET_PROPERTIES(${target} PROPERTIES LINK_FLAGS "/WHOLEARCHIVE:${module}")
+        endif()
     endforeach()
