@@ -55,21 +55,33 @@ function(GN_getUnit _result name)
 
 ## -----------| interface
 
-## addSubunits add the units as dependet
-function(GNU_addSubunits unit)
+## setSubunits add the units as dependet
+function(GNU_setSubunits unit)
     set(subunits ${ARGN})
-
-    GN_append(${unit}_units ${subunits})
 
     foreach(subunitName ${subunits})
         GN_getUnit(subunit ${subunitName})
         GN_append(${unit}_units ${${subunit}_units})
-        GN_append(${unit}_libs  ${${subunit}_Libs} )
-        GN_append(${unit}_defs  ${${subunit}_Defs} )
-        # TODO:: public directories
         endforeach()
+    GN_append(${unit}_units ${subunits})
     GN_unique(${unit}_units)
-    GN_unique(${unit}_defs )
+
+    foreach(subunitName ${${unit}_units})
+        GN_getUnit(subunit ${subunitName})
+        GN_append(${unit}_libs  ${${subunit}_Libs})
+        GN_append(${unit}_defs  ${${subunit}_Defs})
+
+        set(imported)
+        GNU_getDir(dirs ${subunit} "public")
+        foreach(dir ${dirs})
+            GNU_getDir(paths ${subunit} ${dir})
+            list(APPEND imported ${paths})
+            endforeach()
+        set(group "modules.${subunitName}")
+        GNU_addDir(${unit} ${group} ${imported})
+        GNU_addDir(${unit} "private" ${group})
+        endforeach()
+    GN_unique(${unit}_defs)
     endfunction()
 
 ## addProperties adds the following properties
@@ -78,7 +90,7 @@ function(GNU_addSubunits unit)
 #   - PRIV  -   list of private include directories
 #   - LIBS  -   list of libraries
 #   - DEFS  -   list of definitions
-function(GNU_addProperties unit)
+function(GNU_setProperties unit)
     set(ARRAYS "PUBL" "PRIV" "LIBS" "DEFS")
     cmake_parse_arguments(args "" "MODE" "${ARRAYS}" ${ARGN})
     

@@ -28,14 +28,14 @@ function(GN_test_add unit)
         AND NOT "${${unit}_Mode}" STREQUAL "app"
         AND NOT ${unit}_bFlat
     )
-        GNU_addDir(${unit} "test" "${GN_dir_tests}")
-        GNU_getSrcFrom(files ${unit} "test")
+        GNU_addDir(${unit} "internal.test" "${GN_dir_tests}")
+        GNU_getSrcFrom(files ${unit} "internal.test")
         if ("${files}" STREQUAL "")
             return()
             endif()
 
-        GNU_addDir(${unit} "private" "test")
-        GNU_addDir(${unit} "project" "test")
+        GNU_addDir(${unit} "private" "internal.test")
+        GNU_addDir(${unit} "project" "internal.test")
         GNU_parseSrc(${unit})
 
         GN_cache(${unit}_extra_test on)

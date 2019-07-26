@@ -66,14 +66,14 @@ function(GN_Unit Name)
     GN_default(args_Mode  "lib")
 
     GN_newUnit(unit ${Name} ${args_bFlat})
-    GNU_addProperties(${unit}
+    GNU_setProperties(${unit}
         MODE ${args_Mode}
         PUBL ${args_Public}
         PRIV ${args_Private}
         LIBS ${args_Libs}
         DEFS ${args_Definitions}
     )
-    GNU_addSubunits(${unit} ${args_Units})
+    GNU_setSubunits(${unit} ${args_Units})
     GNU_parseSrc(${unit})
     
     GN_callEvent("onSetup" ${unit})
