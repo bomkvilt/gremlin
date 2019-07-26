@@ -1,57 +1,52 @@
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~| Gremlin's settings
-# common settings
-set(GN_bDebug 	        off		        CACHE BOOL "Print unit debug information")
-set(GN_bheaders         on              CACHE BOOL "Enable header processing")
-set(GN_bProduction      off             CACHE BOOL "Enable productoin build mode")
-set(GN_cpp_version 		17		        CACHE STRING "C++ standart")
-# directory settings
-set(GN_dir_private	    "Private"       CACHE STRING "Unit private directory")
-set(GN_dir_public	    "Public"        CACHE STRING "Unit public directory")
-set(GN_dir_data		    "Data"	        CACHE STRING "Unit data directory")
-set(GN_dir_test		    "Test"	        CACHE STRING "Unit test directory")
-# test settings
-set(GN_bTests 	        on		        CACHE BOOL "Enable tests")
-set(GN_tests_filter	    "_tests_"       CACHE STRING "Filter name for all test projects")
-set(GN_tests_target     "tests_exe"     CACHE STRING "test target")
-set(GN_tests_test       "tests_test"    CACHE STRING "test name")
-# unity building
-set(GN_bUnity           off		        CACHE BOOL "Enable unity building")
+cmake_minimum_required(VERSION 3.15)
 
-# root directory
+## --------------------------| variables |-------------------------- ##
+## -----------| common settings
+set(GN_bDebug       off             CACHE BOOL "prints debug information")
+set(GN_cpp_version  17              CACHE BOOL "c++ standart")
+## -----------| directories
+set(GN_dir_private  "private"       CACHE STRING "private code directory")
+set(GN_dir_public   "public"        CACHE STRING "public code directory")
+## -----------| enabled modules
+set(GN_modules_avaliable "vcpkg" "test" "guards")
+set(GN_modules_enabled   "vcpkg" "test" "guards")
+
+
+# include internal functions
 set(GN_dir_gremlin "${CMAKE_CURRENT_LIST_DIR}" CACHE STRING "" FORCE)
+include("${GN_dir_gremlin}/internal/log.cmake")
+include("${GN_dir_gremlin}/internal/enviroment.cmake")
+include("${GN_dir_gremlin}/internal/helpers.cmake")
+include("${GN_dir_gremlin}/internal/modules.cmake")
+include("${GN_dir_gremlin}/internal/unit.cmake")
 
-# submodules
-include("${GN_dir_gremlin}/GN_misc.cmake")
-include("${GN_dir_gremlin}/GN_tests.cmake")
-include("${GN_dir_gremlin}/GN_private.cmake")
-include("${GN_dir_gremlin}/GN_headers.cmake")
-include("${GN_dir_gremlin}/GN_projects.cmake")
-include("${GN_dir_gremlin}/GN_unity_build.cmake")
+# include enabled modules
+foreach(module ${GN_modules_enabled})
+    include("${GN_dir_gremlin}/modules/${module}.cmake")
+    endforeach()
 
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~| Gremlin's API
-# solution initialisation
-macro(GN_Solutoin name)
-    GN_fix_policies()
-    GN_project(${name})
-    GN_setup_enviroment()
+
+## --------------------------| interface |-------------------------- ##
+macro(GN_Init)
+    GN_initEnviroment()
+    GN_callEvent("onInit")
     endmacro()
 
 macro(GN_Configure)
-    GN_setup_tests()
+    GN_setupEnviroment()
+    GN_callEvent("onConf")
     endmacro()
 
-# submodules
 macro(GN_Subprojects)
     foreach(path ${ARGN})
         ADD_SUBDIRECTORY(${path})
         endforeach()
     endmacro()
 
+
 ## creates a unit with the folowing params:
 #   \ Name                  - unit name
-#   \ Modules       = {}    - list of depending modules             | inherits
+#   \ Units         = {}    - list of depending units               | inherits
 #   \ Private       = {}    - list of private external include dirs | 
 #   \ Public        = {}    - list of public  external include dirs | inherits
 #   \ Libs          = {}    - list of depending external libs       | inherits
@@ -60,73 +55,43 @@ macro(GN_Subprojects)
 #   \ Mode          = lib   - [...] type of unit will be built
 #       \ lib       - create a static library
 #       \ app       - create an executable
-#       \ headers   - create a target with no binary output
-function(GB_Module Name)
-    # create module
-    GN_make_module(this ${Name} ${ARGN})
-    GN_debug("\n----------------------------------------------------")
-    GN_debug("|${this}::${${this}_Mode}::${${this}_dir_root}|")
-    
-    # read dependencies
-    GN_read_modules(${this}_modules ${this})
-    GN_read_libs   (${this}_libs    ${this})
-    
-    # read sources
-    GN_read_sources(${this}_src_private ${${this}_dir_private} ${${this}_dir_root} off)
-    GN_read_sources(${this}_src_public  ${${this}_dir_public}  ${${this}_dir_root} off)
-    GN_read_sources(${this}_src_test    ${${this}_dir_test}    ${${this}_dir_root} on )
+function(GN_Unit Name)
+    set(OPTIONS "bFlat")
+    set(VALUES  "Mode" )
+    set(ARRAYS  "Units;Private;Public;Libs;Definitions")
+    cmake_parse_arguments(args
+        "${OPTIONS}" 
+        "${VALUES}"
+        "${ARRAYS}" ${ARGN})
+    GN_default(args_Mode  "lib")
 
-    # print found sources
-    GN_debug("| public|: \t${${this}_src_public}")
-    GN_debug("|private|: \t${${this}_src_private}")
-    GN_debug("|  tests|: \t${${this}_src_test}")
-
-    # create targets
-    if (${${this}_Mode} STREQUAL "lib")
-        add_library(${this}
-            ${${this}_src_private} 
-            ${${this}_src_public}
-            ${${this}_src_test})
-        set(${this}_bLink on)
-        # link target
-        target_link_libraries(${this} ${${this}_libs})
-        endif()
-    if (${${this}_Mode} STREQUAL "app")
-        add_executable(${this} 
-            ${${this}_src_private}
-            ${${this}_src_public})
-        set(${this}_bLink off)
-        # link target
-        target_link_libraries(${this} ${${this}_libs})
-        # set debug directory
-        set_target_properties(${Name} PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY ${GN_dir_solution})
-        # add dependencies
-        foreach(module ${${this}_modules})
-            add_dependencies(${this} ${module})
-            endforeach()
-        endif()
-    if (${${this}_Mode} STREQUAL "headers")
-        add_custom_target(${this} SOURCES ${${this}_src_public})
-        set(${this}_bLink off)
-        endif()
+    GN_newUnit(unit ${Name} ${args_bFlat})
+    GNU_addProperties(${unit}
+        MODE ${args_Mode}
+        PUBL ${args_Public}
+        PRIV ${args_Private}
+        LIBS ${args_Libs}
+        DEFS ${args_Definitions}
+    )
+    GNU_addSubunits(${unit} ${args_Units})
+    GNU_parseSrc(${unit})
     
-    # setup unit
-    GN_setup_includes(${this})
-    GN_setup_defines(${this}_defines ${this})
-    GN_setup_filters(${this})
-    GN_unity_build(${this})
-    GN_define(${this})
+    GN_callEvent("onSetup" ${unit})
+    GNU_parseSrc (${unit})
+    GNU_configure(${unit})
 
-    # update include guards
-    GN_process_headers("${${this}_src_private};${${this}_src_public};${${this}_src_test}")
+    GN_debugHeader("${Name}")
+    GN_debug("mode"             "${${unit}_mode}")
+    GN_debug("root"             "${${unit}_dirs_root}")
+    GN_debug("units"            "${${unit}_units}")
+    GN_debug("dirs.public"      "${${unit}_dirs_public}")
+    GN_debug("dirs.private"     "${${unit}_dirs_private}")
+    GN_debug("files.public"     "${${unit}_srcs_public}")
+    GN_debug("files.private"    "${${unit}_srcs_private}")
+    GN_debug("libs"             "${${unit}_libs}" 2)
+    GN_debug("defs"             "${${unit}_defs}")
+
+    GNU_generateTarget(${unit})
+    GN_callEvent("onGen" ${unit})
+    GNU_done(${unit})
     endfunction()
-
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~| policies
-macro(GN_fix_policies)
-    if (POLICY CMP0074)
-        cmake_policy(SET CMP0074 NEW)
-        endif()
-    if (POLICY CMP0079)
-        cmake_policy(SET CMP0079 NEW)
-        endif()
-    endmacro()

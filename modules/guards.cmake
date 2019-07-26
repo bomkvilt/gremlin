@@ -1,28 +1,46 @@
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~| header workers
+## --------------------------| variables |-------------------------- ##
+## -----------| settings
+GN_cache(GN_guards_bEnabled   on)
+GN_cache(GN_guards_extentions ".h" ".hpp")
 
-function(GN_process_headers files)
+## --------------------------| initialisation |-------------------------- ##
+
+function(GN_guards_init)
+    list(JOIN GN_guards_extentions "|" exts)
+    string(REPLACE "." "\\\\." exts ${exts})
+    GN_cache(GN_guards_exts ${exts})
+    GN_cache(GN_guards_bInitialised on)
+    endfunction()
+
+## --------------------------| internal |-------------------------- ##
+
+function(GN_guards_processHeaders unit files)
     # if disables
-    if (NOT GN_bheaders)
+    if (NOT GN_guards_bEnabled)
         return()
         endif()
+    
+    if (NOT GN_guards_bInitialised)
+        GN_error("unit 'guards' must be initialised to be used")
+        endif()
+
+    # process headers
     foreach(file ${files})
-        GN_last_extention(_extention ${file})
-        if (${_extention} MATCHES ".h|.hpp")
-            GN_process_header(${file})
+        if (file MATCHES "${GN_guards_exts}")
+            GN_guards_processHeader(${unit} ${file})
             endif()
         endforeach()
     endfunction()
 
-function(GN_process_header file)
+function(GN_guards_processHeader unit file)
     # generate guards
-    GN_guard_name(guard ${file})
-    GN_top_guard(top ${guard})
-    GN_bot_guard(bot ${guard})
+    GN_guards_guardName(name ${unit} ${file})
+    GN_guards_topGuard(top ${name})
+    GN_guards_botGuard(bot ${name})
 
     # check guards
     file(READ ${file} data)
-    GN_check_guards(ok "${data}")
+    GN_guards_checkGuards(ok "${data}")
 
     # insert guards
     set(out "")
@@ -42,25 +60,26 @@ function(GN_process_header file)
     file(WRITE ${file} "${out}")
     endfunction()
 
-function(GN_guard_name _result file)
+function(GN_guards_guardName _result unit file)
     get_filename_component(name ${file} NAME)
+    string(PREPEND name "${unit}_")
     string(REPLACE "." "_" _d ${name})
     string(TOUPPER ${_d} _upper)
     GN_return(${_upper})
     endfunction()
 
-function(GN_top_guard _result name)
+function(GN_guards_topGuard _result name)
     set(_gt "")
     string(APPEND _gt "#ifndef ${name}\n")
     string(APPEND _gt "#define ${name}\n")
     GN_return(${_gt})
     endfunction()
 
-function(GN_bot_guard _result name)
+function(GN_guards_botGuard _result name)
     GN_return("#endif //!${name}\n")
     endfunction()
 
-function(GN_check_guards _result data)
+function(GN_guards_checkGuards _result data)
     set(re "")
     string(APPEND re "^")
     string(APPEND re "#ifndef [A-Za-z0-9_]*\r?\n")
