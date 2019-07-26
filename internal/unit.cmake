@@ -97,21 +97,24 @@ function(GNU_addProperties unit)
     GN_unique (${unit}_defs)
     endfunction()
 
-## parseSrc generate lists of assigned sources
+## parseSrc generate lists of assigned sources:
 #   - project   - srcs will be compiled
-#   - public    - srcs will be included to ide and another modules
-#   - private   - srcs will be included to ids only
 function(GNU_parseSrc unit)
-    foreach(group "project" "public" "private")
-        GNU_setSrc(${unit} "${group}")
-        GNU_getDir(dirs ${unit} "${group}")
-        foreach(dir ${dirs})
-            GNU_getDir(paths ${unit} ${dir})
-            foreach(path ${paths})
-                file(GLOB_RECURSE files "${path}/*")
-                GNU_addSrc(${unit} "${group}" ${files})
-                endforeach()
-            endforeach()
+    GNU_setSrc(${unit} "project")
+    GNU_getDir(dirs ${unit} "project")
+    foreach(dir ${dirs})
+        GNU_getSrcFrom(files ${unit} ${dir})
+        GNU_addSrc(${unit} "project" ${files})
+        endforeach()
+    endfunction()
+
+# getSrcFrom returns list of files from assigned directory
+# NOTE: group is a name of set of paths
+function(GNU_getSrcFrom _result unit group)
+    GNU_getDir(paths ${unit} "${group}")
+    foreach(path ${paths})
+        file(GLOB_RECURSE files "${path}/*")
+        GN_return("${files}")
         endforeach()
     endfunction()
 
