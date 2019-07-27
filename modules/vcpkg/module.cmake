@@ -11,11 +11,12 @@ GN_option(GN_vcpkg_vcpkgRoot "vcpkg")
 ## --------------------------| initialisation |-------------------------- ##
 
 function(GN_vcpkg_init)
-    # download a --vcpkg
+    GN_vcpkg_fixVariables()
     if (NOT GN_vcpkg_downloaded)
         GN_vcpkg_download()
         GN_cache(GN_vcpkg_downloaded on)
         endif()
+
     set(toolchain "${GN_vcpkg_vcpkgRoot}/scripts/buildsystems/vcpkg-gremlin.cmake")
     configure_file("${GN_dir_gremlin}/modules/vcpkg/toolchain.cmake" ${toolchain} COPYONLY)
     GN_cache(CMAKE_TOOLCHAIN_FILE ${toolchain})
@@ -56,7 +57,7 @@ function(GN_vcpkg_install name)
 
 ## --------------------------| internal |-------------------------- ##
 
-function(GN_vcpkg_download)
+function(GN_vcpkg_fixVariables)
     if("${GN_vcpkg_vcpkgRoot}" STREQUAL "")
         string(REPLACE "\\" "/" tmp $ENV{VCPKG_ROOT})
         GN_cache(GN_vcpkg_vcpkgRoot ${tmp})
@@ -67,13 +68,16 @@ function(GN_vcpkg_download)
     if (NOT IS_ABSOLUTE ${GN_vcpkg_vcpkgRoot})
         GN_cache(GN_vcpkg_vcpkgRoot "${GN_dir_building}/${GN_vcpkg_vcpkgRoot}")
         endif()
+    endfunction()
 
+
+function(GN_vcpkg_download)
     GN_infoHeader("downloading vcpkg...")
     GN_info("vcpkgroot" "${GN_vcpkg_vcpkgRoot}")
 
     # clone vcpkg from github. stay on master
     if(NOT EXISTS ${GN_vcpkg_vcpkgRoot}/README.md)
-        GN_info("status..." "cloning vcpkg in ${GN_vcpkg_vcpkgRoot}")
+        GN_info("status..." "cloning vcpkg to ${GN_vcpkg_vcpkgRoot}")
         execute_process(COMMAND git clone https://github.com/Microsoft/vcpkg.git ${GN_vcpkg_vcpkgRoot})
         endif()
 

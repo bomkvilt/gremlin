@@ -17,8 +17,8 @@ GN_option(GN_cpp_static  on)    # use static c runtime
 GN_option(GN_dir_private "private") # private code directory
 GN_option(GN_dir_public  "public")  # public code directory
 ## -----------| enabled modules
-GN_option(GN_modules_avaliable "flags" "vcpkg" "test" "guards")
-GN_option(GN_modules_enabled   "flags" "vcpkg" "test" "guards")
+GN_option(GN_modules_avaliable "flags" "vcpkg" "cotire" "test" "guards")
+GN_option(GN_modules_enabled   "flags" "vcpkg" "cotire" "test" "guards")
 
 # include enabled modules
 foreach(module ${GN_modules_enabled})

@@ -20,8 +20,8 @@ macro(GN_test_init)
 
 function(GN_test_add unit)
     if (
-        NOT ${${unit}_name} MATCHES "^${GN_tests_prefix}"
-        AND NOT "${${unit}_Mode}" STREQUAL "app"
+            NOT ${${unit}_name} MATCHES "^${GN_tests_prefix}"
+        AND NOT ${${unit}_Mode} STREQUAL "app"
         AND NOT ${unit}_bFlat
     )
         GNU_addDir(${unit} "internal.test" "${GN_dir_tests}")

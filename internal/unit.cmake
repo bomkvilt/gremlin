@@ -159,7 +159,7 @@ function(GNU_generateTarget unit)
         GN_error("unsupported unit mode '${args_MODE}'")
         endif()
     
-    set_target_properties(${target} PROPERTIES FOLDER ${${unit}_category})
+    set_target_properties(${target} PROPERTIES FOLDER "projects/${${unit}_category}")
 
     GN_cache(${unit}_target ${target})
     endfunction()
