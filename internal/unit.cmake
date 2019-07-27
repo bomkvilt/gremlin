@@ -19,7 +19,7 @@
 #
 ## -----------| constructor
 
-GN_cache(GN_unitPrefix "GN_U")
+GN_option(GN_unitPrefix "GN_U")
 
 ## newUnit creates a new unit
 macro(GN_newUnit _result name bFlat)

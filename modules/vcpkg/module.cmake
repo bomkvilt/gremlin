@@ -1,12 +1,12 @@
 ## --------------------------| variables |-------------------------- ##
 ## -----------| settings
-GN_cache(GN_vcpkg_bEnabled on)
+GN_option(GN_vcpkg_bEnabled on)
 
 ## cvpkgRoot is a path to vcpkg directory
 # NOTE: if it's relative - ${CMAKE_BINARY_DIR} relative
 # NOTE: if it's absolute - the path will be used
 # NOTE: if it's "" - VCPKG_ROOT env will be used instead
-GN_cache(GN_vcpkg_vcpkgRoot "vcpkg") 
+GN_option(GN_vcpkg_vcpkgRoot "vcpkg") 
 
 ## --------------------------| initialisation |-------------------------- ##
 
@@ -58,7 +58,11 @@ function(GN_vcpkg_install name)
 
 function(GN_vcpkg_download)
     if("${GN_vcpkg_vcpkgRoot}" STREQUAL "")
-        GN_cache(GN_vcpkg_vcpkgRoot $ENV{VCPKG_ROOT})
+        string(REPLACE "\\" "/" tmp $ENV{VCPKG_ROOT})
+        GN_cache(GN_vcpkg_vcpkgRoot ${tmp})
+        endif()
+    if("${GN_vcpkg_vcpkgRoot}" STREQUAL "")
+        GN_error("VCPKG_ROOT is not set")
         endif()
     if (NOT IS_ABSOLUTE ${GN_vcpkg_vcpkgRoot})
         GN_cache(GN_vcpkg_vcpkgRoot "${GN_dir_building}/${GN_vcpkg_vcpkgRoot}")
@@ -68,7 +72,7 @@ function(GN_vcpkg_download)
     GN_info("vcpkgroot" "${GN_vcpkg_vcpkgRoot}")
 
     # clone vcpkg from github. stay on master
-    if(NOT EXISTS ${GN_vcpkg_vcpkgRoot})
+    if(NOT EXISTS ${GN_vcpkg_vcpkgRoot}/README.md)
         GN_info("status..." "cloning vcpkg in ${GN_vcpkg_vcpkgRoot}")
         execute_process(COMMAND git clone https://github.com/Microsoft/vcpkg.git ${GN_vcpkg_vcpkgRoot})
         endif()

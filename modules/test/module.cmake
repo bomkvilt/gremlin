@@ -1,9 +1,9 @@
 ## --------------------------| variables |-------------------------- ##
 ## -----------| settings
-GN_cache(GN_test_bEnabled   on)
-GN_cache(GN_tests_filter    "utiles/tests")
-GN_cache(GN_tests_prefix    "test.")
-GN_cache(GN_dir_tests       "Test")
+GN_option(GN_test_bEnabled  on)
+GN_option(GN_tests_filter   "utiles/tests")
+GN_option(GN_tests_prefix   "test.")
+GN_option(GN_dir_tests      "Test")
 
 ## --------------------------| initialisation |-------------------------- ##
 

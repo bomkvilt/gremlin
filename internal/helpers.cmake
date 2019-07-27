@@ -23,12 +23,20 @@ function(GN_default _result value)
 
 ## -----------| cache
 
+## option defines a cached optoin variable
+function(GN_option name)
+    GN_cache_internal(${name} ${ARGN})
+    endfunction()
+
 # cache stores the value to a cache
 function(GN_cache name)
     if (${ARGC} EQUAL 1)
         set(ARGN ${${name}})
         endif()
-    
+    GN_cache_internal(${name} ${ARGN})
+    endfunction()
+
+function(GN_cache_internal name)
     set(type "STRING")
     if (${ARGC} EQUAL 2)
         list(GET ARGN 0 value)

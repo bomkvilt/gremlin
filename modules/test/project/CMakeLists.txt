@@ -6,7 +6,7 @@ macro(GN_test_gen unit)
     set(test   "${GN_tests_prefix}${name}-test")
     GN_Unit(${target}
         Units       ${name}
-        Libs        GTest::GTest
+        Libs        GTest::GTest GTest::Main
         Definitions "-Dall_load"
         Mode        "app" 
         bFlat

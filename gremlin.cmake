@@ -1,25 +1,24 @@
 cmake_minimum_required(VERSION 3.15)
 
-## --------------------------| variables |-------------------------- ##
-## -----------| common settings
-set(GN_bDebug       off             CACHE BOOL "print debug information")
-set(GN_cpp_version  17              CACHE BOOL "c++ standart")
-set(GN_cpp_static   on              CACHE BOOL "use static c runtime")
-## -----------| directories
-set(GN_dir_private  "private"       CACHE STRING "private code directory")
-set(GN_dir_public   "public"        CACHE STRING "public code directory")
-## -----------| enabled modules
-set(GN_modules_avaliable "flags" "vcpkg" "test" "guards")
-set(GN_modules_enabled   "flags" "vcpkg" "test" "guards")
-
-
 # include internal functions
 set(GN_dir_gremlin "${CMAKE_CURRENT_LIST_DIR}" CACHE STRING "" FORCE)
+include("${GN_dir_gremlin}/internal/helpers.cmake")
 include("${GN_dir_gremlin}/internal/log.cmake")
 include("${GN_dir_gremlin}/internal/enviroment.cmake")
-include("${GN_dir_gremlin}/internal/helpers.cmake")
 include("${GN_dir_gremlin}/internal/modules.cmake")
 include("${GN_dir_gremlin}/internal/unit.cmake")
+
+## --------------------------| variables |-------------------------- ##
+## -----------| common settings
+GN_option(GN_bDebug      off)   # print debug information
+GN_option(GN_cpp_version 17)    # c++ standart
+GN_option(GN_cpp_static  on)    # use static c runtime
+## -----------| directories
+GN_option(GN_dir_private "private") # private code directory
+GN_option(GN_dir_public  "public")  # public code directory
+## -----------| enabled modules
+GN_option(GN_modules_avaliable "flags" "vcpkg" "test" "guards")
+GN_option(GN_modules_enabled   "flags" "vcpkg" "test" "guards")
 
 # include enabled modules
 foreach(module ${GN_modules_enabled})

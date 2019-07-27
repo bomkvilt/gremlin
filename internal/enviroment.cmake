@@ -2,7 +2,7 @@
 ## -----------| common
 
 macro(GN_initEnviroment)
-    foreach(prefix ${GN_unitPrefix})
+    foreach(prefix "${GN_unitPrefix}")
         get_cmake_property(variables VARIABLES)
         foreach (variable ${variables})
             if ("${variable}" MATCHES "^${prefix}")

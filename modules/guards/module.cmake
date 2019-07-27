@@ -1,7 +1,7 @@
 ## --------------------------| variables |-------------------------- ##
 ## -----------| settings
-GN_cache(GN_guards_bEnabled   on)
-GN_cache(GN_guards_extentions ".h" ".hpp")
+GN_option(GN_guards_bEnabled   on)
+GN_option(GN_guards_extentions ".h" ".hpp")
 
 ## --------------------------| initialisation |-------------------------- ##
 

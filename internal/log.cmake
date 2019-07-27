@@ -1,8 +1,7 @@
 ## --------------------------| log |-------------------------- ##
 ## -----------| settings
-set(GN_log_lvl  "DEBUG")
-set(GN_log_key  25     )
-
+GN_option(GN_log_lvl  "DEBUG")
+GN_option(GN_log_key  25     )
 
 ## -----------| interface
 
