@@ -16,7 +16,9 @@ function(GN_vcpkg_init)
         GN_vcpkg_download()
         GN_cache(GN_vcpkg_downloaded on)
         endif()
-    GN_cache(CMAKE_TOOLCHAIN_FILE "${GN_dir_gremlin}/modules/vcpkg/toolchain.cmake")
+    set(toolchain "${GN_vcpkg_vcpkgRoot}/scripts/buildsystems/vcpkg-gremlin.cmake")
+    configure_file("${GN_dir_gremlin}/modules/vcpkg/toolchain.cmake" ${toolchain} COPYONLY)
+    GN_cache(CMAKE_TOOLCHAIN_FILE ${toolchain})
     endfunction()
 
 function(GN_vcpkg_configure)
@@ -96,11 +98,7 @@ function(GN_vcpkg_download)
         GN_error("cannot bootstrap vcpkg in ${GN_vcpkg_vcpkgRoot}")
         endif()
 
-    # set a custom toolchain
-    GN_cache(GN_vcpkg_vcpkgTool "${GN_vcpkg_vcpkgRoot}/scripts/buildsystems/vcpkg.cmake")
-    GN_cache(GN_vcpkg_vcpkgExec "${VCPKG_EXEC}")
-
     GN_info("status..." "vcpkg installed in ${GN_vcpkg_vcpkgRoot}")
-    GN_info("status..." "toolcain is ${GN_vcpkg_vcpkgTool}")
+    GN_cache(GN_vcpkg_vcpkgExec "${VCPKG_EXEC}")
     GN_infoLine()
     endfunction()

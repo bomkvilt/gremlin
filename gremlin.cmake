@@ -9,8 +9,8 @@ set(GN_cpp_static   on              CACHE BOOL "use static c runtime")
 set(GN_dir_private  "private"       CACHE STRING "private code directory")
 set(GN_dir_public   "public"        CACHE STRING "public code directory")
 ## -----------| enabled modules
-set(GN_modules_avaliable "vcpkg" "test" "guards")
-set(GN_modules_enabled   "vcpkg" "test" "guards")
+set(GN_modules_avaliable "flags" "vcpkg" "test" "guards")
+set(GN_modules_enabled   "flags" "vcpkg" "test" "guards")
 
 
 # include internal functions
