@@ -185,6 +185,8 @@ function(GNU_done unit)
     if (${unit}_bLink)
         GN_append(${unit}_Libs ${target})
         endif()
+    
+    GN_append(GN_units ${${unit}_name})
     endfunction()
 
 ## -----------| internal

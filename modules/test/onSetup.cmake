@@ -1,5 +1,5 @@
 
 ## this handler adds the unit to test enviroment
-function(event unit)
+macro(event unit)
     GN_test_add(${unit})
-    endfunction()
+    endmacro()

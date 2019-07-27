@@ -16,17 +16,21 @@ function(GN_vcpkg_init)
         GN_vcpkg_download()
         GN_cache(GN_vcpkg_downloaded on)
         endif()
-    GN_cache(CMAKE_TOOLCHAIN_FILE "${GN_vcpkg_vcpkgTool}")
+    GN_cache(CMAKE_TOOLCHAIN_FILE "${GN_dir_gremlin}/modules/vcpkg/toolchain.cmake")
+    endfunction()
+
+function(GN_vcpkg_configure)
+    set(triplet "${VCPKG_TARGET_TRIPLET}")
+    if ("${triplet}" STREQUAL "")
+        GN_error("vcpkg isn't installed!")
+        endif()
+    GN_debug("vcpkg_triplet" "${triplet}")
     endfunction()
 
 ## --------------------------| interface |-------------------------- ##
 
 function(GN_vcpkg_install name)
     set(triplet "${VCPKG_TARGET_TRIPLET}")
-    if ("${triplet}" STREQUAL "")
-        GN_error("vcpkg isn't installed!")
-        endif()
-    
     if ("${name}" STREQUAL "")
         GN_error("name cannot be empty!")
         endif()
@@ -39,7 +43,7 @@ function(GN_vcpkg_install name)
         execute_process(COMMAND "${GN_vcpkg_vcpkgExec}" install "${name}"
             WORKING_DIRECTORY   "${GN_vcpkg_vcpkgRoot}"
             RESULTS_VARIABLE    result
-            )
+        )
         if (result)
             GN_error("vcpkg result: ${result}")
             endif()

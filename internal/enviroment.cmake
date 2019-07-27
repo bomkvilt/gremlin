@@ -10,6 +10,7 @@ macro(GN_initEnviroment)
                 endif()
             endforeach()
         endforeach()
+    GN_uncache(GN_units)
 
     GN_cache(GN_dir_building "${CMAKE_BINARY_DIR}")
     endmacro()

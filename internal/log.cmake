@@ -54,6 +54,10 @@ function(GN_infoLine)
     GN_info(${line})
     endfunction()
 
+function(GN_errorLine)
+    string(REPEAT "-" 80 line)
+    GN_error(${line})
+    endfunction()
 
 function(GN_debugHeader name)
     GN_debugLine()

@@ -1,5 +1,5 @@
 
 ## this handler inits the module
-function(event)
+macro(event)
     GN_vcpkg_init()
-    endfunction()
+    endmacro()

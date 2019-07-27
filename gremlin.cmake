@@ -2,8 +2,9 @@ cmake_minimum_required(VERSION 3.15)
 
 ## --------------------------| variables |-------------------------- ##
 ## -----------| common settings
-set(GN_bDebug       off             CACHE BOOL "prints debug information")
+set(GN_bDebug       off             CACHE BOOL "print debug information")
 set(GN_cpp_version  17              CACHE BOOL "c++ standart")
+set(GN_cpp_static   on              CACHE BOOL "use static c runtime")
 ## -----------| directories
 set(GN_dir_private  "private"       CACHE STRING "private code directory")
 set(GN_dir_public   "public"        CACHE STRING "public code directory")
@@ -22,7 +23,7 @@ include("${GN_dir_gremlin}/internal/unit.cmake")
 
 # include enabled modules
 foreach(module ${GN_modules_enabled})
-    include("${GN_dir_gremlin}/modules/${module}.cmake")
+    include("${GN_dir_gremlin}/modules/${module}/module.cmake")
     endforeach()
 
 
@@ -30,19 +31,27 @@ foreach(module ${GN_modules_enabled})
 macro(GN_Init)
     GN_initEnviroment()
     GN_callEvent("onInit")
-    endmacro()
-
-macro(GN_Configure)
-    GN_setupEnviroment()
-    GN_callEvent("onConf")
+    GN_cache(GN_lvl 0)
     endmacro()
 
 macro(GN_Subprojects)
-    foreach(path ${ARGN})
-        ADD_SUBDIRECTORY(${path})
-        endforeach()
-    endmacro()
+    if (${GN_lvl} EQUAL 0)
+        GN_setupEnviroment()
+        GN_callEvent("onConf")
+        endif()
 
+    math(EXPR lvl "${GN_lvl} + 1")
+    GN_cache(GN_lvl ${lvl})
+    foreach(path ${ARGN})
+        add_subdirectory(${path})
+        endforeach()
+    math(EXPR lvl "${GN_lvl} - 1")
+    GN_cache(GN_lvl ${lvl})
+
+    if (${GN_lvl} EQUAL 0)
+        GN_callEvent("onDone")
+        endif()
+    endmacro()
 
 ## creates a unit with the folowing params:
 #   \ Name                  - unit name
