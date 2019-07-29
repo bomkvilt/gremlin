@@ -6,8 +6,9 @@ GN_option(GN_guards_extentions ".h" ".hpp")
 ## --------------------------| initialisation |-------------------------- ##
 
 function(GN_guards_init)
-    list(JOIN GN_guards_extentions "|" exts)
-    string(REPLACE "." "\\\\." exts ${exts})
+    list(TRANSFORM GN_guards_extentions APPEND "$" OUTPUT_VARIABLE exts)
+    list(JOIN exts "|" exts)
+    string(REPLACE "." "\\." exts ${exts})
     GN_cache(GN_guards_exts ${exts})
     GN_cache(GN_guards_bInitialised on)
     endfunction()
@@ -34,7 +35,7 @@ function(GN_guards_processHeaders unit files)
 
 function(GN_guards_processHeader unit file)
     # generate guards
-    GN_guards_guardName(name ${unit} ${file})
+    GN_guards_guardName(name ${${unit}_name} ${file})
     GN_guards_topGuard(top ${name})
     GN_guards_botGuard(bot ${name})
 
