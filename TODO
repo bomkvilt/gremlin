@@ -1,0 +1,4 @@
+common:
+    ☐ use interface libraries istead of cached variables
+    ☐ link interface libraries to "head" targets
+    ☐ add support of shared / static libraries

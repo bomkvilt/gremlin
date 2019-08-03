@@ -197,7 +197,7 @@ function(GNU_generateApp unit target)
 
     GN_cache(${unit}_bLink off)
 
-    target_link_libraries(${target} ${${unit}_libs})
+    target_link_libraries(${target} PRIVATE ${${unit}_libs})
     set_target_properties(${target} PROPERTIES FOLDER ${${unit}_category})
 
     foreach(subunitName ${${unit}_units})
@@ -208,15 +208,15 @@ function(GNU_generateApp unit target)
 
 function(GNU_generateLib unit target)
     GNU_getSrc(files ${unit} "project")
-    add_library(${target} ${files})
-    
+    add_library(${target} STATIC ${files})
     GN_cache(${unit}_bLink on)
+    
+    target_link_libraries(${target} PRIVATE ${${unit}_libs})
     endfunction()
 
 function(GNU_generateHead unit target)
     GNU_getSrc(files ${unit} "project")
     add_custom_target(${target} SOURCES ${files})
-
     GN_cache(${unit}_bLink off)
     endfunction()
 
