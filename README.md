@@ -1,38 +1,63 @@
 # gremlin
-A set of CMake scripts that makes c ++ development a bit easier: Modules, Unit tests, Unity builds and Precompiled headers.
+A set of CMake scripts that makes c ++ development a bit easier: Modules, Unit tests and Unity builds.
 
 ## Features
-- [units](#Units) (static libraries or executables)
-- [unit tests](#Unit-tests) (for libraries with use of google test framework)
-- [unity build](#Unity-build) (with use of cotire script)
-- [precompiled headers](#Precompiled-headers) (default cotire behaviour)
-- [external projects downloading](#External-projects) (allows not to use third-party folders but load the library one at first configure time at specified place in building directory)
-- [include guards](#Include-guards) (automatically generate and fix include guards for .h or .hpp files)
+- [units](#Units)
+- [unit tests](#Unit-tests)
+- [unity build](#Unity-build)
+- [external projects downloading](#External-projects)
+- [include guards](#Include-guards)
 
 ## Downloading
 ```
     git submodule add https://github.com/bomkvilt/gremlin cmake/gremlin
 ```
 ## Examples
-- [my static HTTP-server project](https://github.com/bomkvilt/2019-I-Highload)
+- [project uses the module](https://github.com/bomkvilt/Yager)
 
 ### Units
-def. Unit - entity that contains any private and public states and can be connected to another unit. Their public states will be inherited.
-Units can be defined with this way:
+def. Unit - group of source files subdivided [optionally] on public, private, test etc. subgroups (the list depends from activated modules).
+
+#### Properties
+
+| property | description | [Inheritance](#Inheritance) |
+| ----     | ----        | ---- |
+| Private  | list of private include directories | No |
+| Public   | list of public include directories | Yes |
+| Libs     | list of libraries (or cmake targets) should be linked to the projects | Yes |
+| Definitions | list of compiler definitoins | Yes |
+| Units    | list of already defined [units](#Units) | Yes |
+| Mode     | [lib, app]whether the units is a library or an executable | No |
+| bFlat    | (flag) defines a unit's folder structure and avaliable features | No |
+
+Units can be easily defined with this way:
 ```
-GB_Module( <name>
-    Modules         <modules will be connected to. Will be inherited> ...
-    Libs            <third-pary libraries. Will be inherited> ...
-    Private         <third-party incudes will not be inherited> ...
-    Public          <third-party incudes WILL be inherited> ...
-    Definitions     <otherwise flags. Any flags will be passed into compiler. Will be inherited> ...
-    Mode            <[app|lib|headers] type of the module (executable|library|header-only library)>
-    bFlat           <[on|off] whether the module have Public|Private.. directories or place code in the module root>
-    )
+GB_Unit(<name>
+    Units
+    Libs
+    Private
+    Public
+    Definitions
+    Mode            [app|lib = default]
+    bFlat           (flag) [on|off = default]
+)
 ```
-Each module can have the following directories (bFlat=on):
-```
-|--- <Unit root>
+
+#### Inheritance
+
+To simplify resource management units (like cmake modules) have assigned public and private properties must (or not) 
+be injected to units it connect to ('Units' property).
+
+#### Directory structure
+
+<table>
+    <tr>
+        <th> bFlat = off (default) </th>
+        <th> bFlat = on </th>
+    </tr>
+    <tr style="vertical-align: top;">
+        <td><pre>
+|--- unit_name
     |--- CMakeLists.txt
     |--- Public \
         |--- public_header.hpp
@@ -43,68 +68,62 @@ Each module can have the following directories (bFlat=on):
         |--- private_test_header.hpp
         |--- any_test.cpp
         |--- another_test.cpp
-    |--- Data \
-        |--- any_file.txt
-```
-Or (bFlat=off):
-```
-|--- <Unit root>
+    ...
+        </pre></td>
+        <td><pre>
+|--- unit_name
     |--- CMakeLists.txt
     |--- public_header.hpp
     |--- any_source.cpp
-```
+    ...
+        </pre></td>
+    </tr>
+</table>
 
 ### Unit tests
-    Common google tests. Must be placed in a Test folder.
-    The test discowers with a Visual Studio built in google test adaptor.
+    To realise tests I currently use a GTest X-Unit framework without any modification. It gets loaded with 
+    use of vcpgk package manager and connects to specific test executables.
+    
+    To enable testing it's required a add a directory called 'Test' to the unit's root (the unit must be none-flat library) 
+    and place at least a source file into the one. 
+    In this case gremlin will create a new unit with executable and connect the library to the executable.
+    After that it will be accessible to a RUN_TESTS target and VS' GTest adaptor.
 
 ### Unity build
-    Applies cotire to the module.
-
-### Precompiled-headers
-    Default cotire behaviour.
+    Right now I use a none-tuned cotire unity build.
+    **NOTE:** precompiled headers are not supported yet.
 
 ### External projects
-Allows to replace a third-party directory with a folder in a build directory. 
-This function takes a @loader file and calls a cmake to configure and buuld it.
-The invocation will be performed once and, in case of succes, will be done no more.
-To download project:
+    As I told I use a vcpk package manager. By default it loads all packages to a building directory but the behavior
+    could be changed with use of the wollowing command: <code> GN_option(GN_vcpkg_vcpkgRoot "place") </code>.
+    If a new root is empty a $ENV{VCPK_ROOT} will be used.
+    
+    To download a package just use <code>GN_vcpkg_install(Boost)</code>
+    And do the same as the packages installed to your system:
+    
 ```
-    GN_Download_project( 
-        root    <out. root of downloaded project> 
-        example <name of the project> 
-        loader  <any cmake file>)
-```
+find_package(Boost REQUIRED 
+    filesystem 
+    date_time 
+    thread
+    system
+    regex)
 
-Loader file cold looks like this:
-```
-cmake_minimum_required(VERSION 2.8.2)
-
-project(cotire-download NONE)
-
-# ${root} = the downloading project's root directory. The save as a GN_Download_project's output parameter
-include(ExternalProject)
-ExternalProject_Add( cotire
-    GIT_REPOSITORY    https://github.com/sakra/cotire.git
-    GIT_TAG           master
-    SOURCE_DIR        "${root}/src"
-    BINARY_DIR        "${root}/build"
-    CONFIGURE_COMMAND ""
-    BUILD_COMMAND     ""
-    INSTALL_COMMAND   ""
-    TEST_COMMAND      ""
-    )
+GN_Unit(boost
+    Libs            ${Boost_LIBRARIES}
+    Public          ${Boost_INCLUDE_DIR}
+    bFlat
+)
 ```
 
 ### Include guards
 Automatically generate top (e.g. file - test_file.hpp):
 ```
-#ifndef TEST_FILE_HPP
-#define TEST_FILE_HPP
+#ifndef UNITNAME_TESTFILE_HPP
+#define UNITNAME_TESTFILE_HPP
 ```
 and bottom:
 ```
-#endif //!TEST_FILE_HPP
-
+#endif //!UNITNAME_TESTFILE_HPP
 ```
 guards.
