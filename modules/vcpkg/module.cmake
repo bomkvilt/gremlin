@@ -1,6 +1,7 @@
 ## --------------------------| variables |-------------------------- ##
 ## -----------| settings
-GN_option(GN_vcpkg_bEnabled on)
+## whether the module uses -static triplets
+GN_option(GN_vcpkg_bStatic  on)
 
 ## cvpkgRoot is a path to vcpkg directory
 # NOTE: if it's relative - ${CMAKE_BINARY_DIR} relative
@@ -16,16 +17,16 @@ function(GN_vcpkg_init)
         GN_vcpkg_download()
         GN_cache(GN_vcpkg_downloaded on)
         endif()
-
-    set(toolchain "${GN_vcpkg_vcpkgRoot}/scripts/buildsystems/vcpkg-gremlin.cmake")
-    configure_file("${GN_dir_gremlin}/modules/vcpkg/toolchain.cmake" ${toolchain} COPYONLY)
-    GN_cache(CMAKE_TOOLCHAIN_FILE ${toolchain})
+    GN_cache(CMAKE_TOOLCHAIN_FILE "${GN_vcpkg_vcpkgRoot}/scripts/buildsystems/vcpkg.cmake")
     endfunction()
 
 function(GN_vcpkg_configure)
     set(triplet "${VCPKG_TARGET_TRIPLET}")
     if ("${triplet}" STREQUAL "")
         GN_error("vcpkg isn't installed!")
+        endif()
+    if (GN_vcpkg_bStatic AND NOT "${triplet}" MATCHES "\-static$")
+        set(triplet "${triplet}-static")
         endif()
     GN_debug("vcpkg_triplet" "${triplet}")
     endfunction()
