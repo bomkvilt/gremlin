@@ -21,6 +21,7 @@ macro(GN_flags_configure)
         GN_flags_append(CMAKE_CXX_FLAGS "/MP")
     else()
         # TODO: linux
+        GN_error("unsupported compiler")
         endif()
 
     set(CMAKE_INSTALL_PREFIX ${CMAKE_CURRENT_BINARY_DIR}/install)
