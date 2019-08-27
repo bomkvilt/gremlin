@@ -29,6 +29,7 @@ function(GN_test_add unit)
         if ("${files}" STREQUAL "")
             return()
             endif()
+        GN_append(${unit}_libs ${args_LIBS} GTest::GTest)
 
         GNU_addDir(${unit} "private" "internal.test")
         GNU_addDir(${unit} "project" "internal.test")
