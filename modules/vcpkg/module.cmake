@@ -38,8 +38,8 @@ function(GN_vcpkg_install name)
         GN_error("name cannot be empty!")
         endif()
     set(name ${name}:${triplet})
-
-    if (NOT ${GN_vcpkg_installed_${name}})
+    
+    if (NOT GN_vcpkg_installed_${name})
         # install the package
         GN_info("installing package..." "${name}")
         execute_process(COMMAND "${GN_vcpkg_vcpkgExec}" install "${name}"
@@ -50,7 +50,7 @@ function(GN_vcpkg_install name)
             GN_error("vcpkg result: ${result}")
             endif()
         GN_info("package installed: ${name}")
-        GN_cache(${flag} on)
+        GN_cache(GN_vcpkg_installed_${name} on)
         endif()
     endfunction()
 

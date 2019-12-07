@@ -23,6 +23,7 @@ function(GN_test_add unit)
             NOT ${${unit}_name} MATCHES "^${GN_tests_prefix}"
         AND NOT ${${unit}_Mode} STREQUAL "app"
         AND NOT ${unit}_bFlat
+        AND     ${GN_bTests}
     )
         GNU_addDir(${unit} "internal.test" "${GN_dir_tests}")
         GNU_getSrcFrom(files ${unit} "internal.test")
