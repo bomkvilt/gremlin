@@ -25,17 +25,17 @@ macro(GN_clearWithPrefix)
     endmacro()
 
 function(GN_counterNew name value)
-    GN_cache(${name} "${value}")
+    GN_cachef(${name} "${value}")
     endfunction()
 
 function(GN_counterInc name value)
     math(EXPR lvl "${${name}} + ${value}")
-    GN_cache(${name} "${lvl}")
+    GN_cachef(${name} "${lvl}")
     endfunction()
 
 function(GN_counterDec name value)
     math(EXPR lvl "${${name}} - ${value}")
-    GN_cache(${name} "${lvl}")
+    GN_cachef(${name} "${lvl}")
     endfunction()
 
 # ---------------------------| functions
