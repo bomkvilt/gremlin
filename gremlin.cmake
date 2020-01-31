@@ -1,6 +1,6 @@
 # ---------------------------| clear cached variables
 include(${CMAKE_CURRENT_LIST_DIR}/gremlin/common.cmake)
-GN_clearWithPref("GN_" "GNU_" "GNP_")
+GN_clearWithPrefix("GN_" "GNU_" "GNP_")
 
 # ---------------------------| include system components
 
@@ -31,6 +31,7 @@ GN_option(GN_pluginList
     ${CMAKE_CURRENT_LIST_DIR}/plugins/libraries/plugin.cmake
     ${CMAKE_CURRENT_LIST_DIR}/plugins/projectTree/plugin.cmake
     ${CMAKE_CURRENT_LIST_DIR}/plugins/vcpkg/plugin.cmake
+    ${CMAKE_CURRENT_LIST_DIR}/plugins/gtest/plugin.cmake
     ${CMAKE_CURRENT_LIST_DIR}/plugins/guards/plugin.cmake
 )
 
@@ -49,6 +50,7 @@ macro(GN_init)
 # \note: must be used for root-lvl subprojects
 # \note: for more deep subprojects - optionaly
 macro(GN_subprojects)
+    GN_cache(GN__inSubprojects on)
     if (${GN__lvl} EQUAL 0)
         GNP_onGlobal(${GN_plugins} "solution_configure")
         endif()

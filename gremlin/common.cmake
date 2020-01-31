@@ -12,7 +12,7 @@ macro(GN_option name)
     GN_cache(${name} ${ARGN})
     endmacro()
 
-macro(GN_clearWithPref)
+macro(GN_clearWithPrefix)
     foreach(prefix ${ARGN})
         get_cmake_property(variables VARIABLES)
         foreach (variable ${variables})

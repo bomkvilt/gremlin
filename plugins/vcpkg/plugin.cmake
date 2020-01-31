@@ -33,12 +33,16 @@ macro(GN_vcpkg)
     endmacro()
 
 function(GN_vcpkg_install name)
+    if (NOT GN__inSubprojects)
+        GN_error(" " "Cannot install a package into uninitialised project")
+        endif()
+
     set(triplet "${VCPKG_TARGET_TRIPLET}")
     if ("${name}" STREQUAL "")
         GN_error("package name cannot be empty!")
         endif()
-    set(name "${name}:${triplet}")
     
+    set(name "${name}:${triplet}")
     if (NOT GNZ_vcpkg_installed_${name})
         GN_infoLine()
         GN_infoHeader("VCPKG package instalations")

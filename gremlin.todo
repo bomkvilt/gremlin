@@ -16,7 +16,7 @@ Plugins:
     ☐ flags
     ☐ cotire
     ✔ include guards @done(20-01-31 16:58)
-    ☐ gtest
+    ✔ gtest @done(20-01-31 19:27)
     ✔ vcpkg @done(20-01-31 13:43)
 
 Bugs:

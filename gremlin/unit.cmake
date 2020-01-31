@@ -172,7 +172,7 @@ function(GNU_assertUnit unit)
     endfunction()
 
 function(GNU_parseArgs unit)
-    GN_clearWithPref("__args_")
+    GN_clearWithPrefix("__args_")
     cmake_parse_arguments(__args
         "${GN__flags}"
         "${GN__1Val}"
@@ -239,7 +239,8 @@ function(GNU_isCodeUnit _result unit)
 
 function(GNU_fixIntegrity unit)
     GNU_get(mode ${unit} "mode")
-    if ("${mode}" STREQUAL "eDependency")
+    if ("${mode}" STREQUAL "eDependency"
+    OR  "${mode}" STREQUAL "eApp")
         return()
         endif()
     GNU_isCodeUnit(ok ${unit})
