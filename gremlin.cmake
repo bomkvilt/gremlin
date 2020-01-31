@@ -36,6 +36,12 @@ GN_option(GN_pluginList
     ${CMAKE_CURRENT_LIST_DIR}/plugins/guards/plugin.cmake
 )
 
+function(GN_addPlugin plugin)
+    set(tmp ${GN_pluginList})
+    list(APPEND tmp ${plugin})
+    GN_cachef(GN_pluginList ${tmp})
+    endfunction()
+
 ## initialises gremlin enviroment
 # \note: calls earier any project(...) functions
 macro(GN_init)
