@@ -13,5 +13,6 @@ GN_subprojects(
     libs/interface
     libs/flat
     libs/complex
+    libs/noTests
     exec
     )
