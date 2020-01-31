@@ -1,105 +1,105 @@
-cmake_minimum_required(VERSION 3.15)
+# ---------------------------| clear cached variables
+include(${CMAKE_CURRENT_LIST_DIR}/gremlin/common.cmake)
+GN_clearWithPrefix("GN_" "GNU_" "GNP_")
 
-# include internal functions
-set(GN_dir_gremlin "${CMAKE_CURRENT_LIST_DIR}" CACHE STRING "" FORCE)
-include("${GN_dir_gremlin}/internal/helpers.cmake")
-include("${GN_dir_gremlin}/internal/log.cmake")
-include("${GN_dir_gremlin}/internal/enviroment.cmake")
-include("${GN_dir_gremlin}/internal/modules.cmake")
-include("${GN_dir_gremlin}/internal/unit.cmake")
+# ---------------------------| include system components
 
-## --------------------------| variables |-------------------------- ##
-## -----------| common settings
-GN_option(GN_bDebug      off)   # print debug information
-GN_option(GN_cpp_version 17)    # c++ standart
-GN_option(GN_cpp_static  on)    # use static c runtime
-## -----------| directories
-GN_option(GN_dir_private "private") # private code directory
-GN_option(GN_dir_public  "public")  # public code directory
-## -----------| enabled modules
-GN_option(GN_modules_avaliable "flags" "vcpkg" "cotire" "test" "guards")
-GN_option(GN_modules_enabled   "flags" "vcpkg" "cotire" "test" "guards")
+set(GN_root ${CMAKE_CURRENT_LIST_DIR})
+set(GN_build_root ${CMAKE_CURRENT_BINARY_DIR})
+set(GN_solution_root ${CMAKE_CURRENT_SOURCE_DIR})
 
-# include enabled modules
-foreach(module ${GN_modules_enabled})
-    include("${GN_dir_gremlin}/modules/${module}/module.cmake")
+foreach(file
+    ${CMAKE_CURRENT_LIST_DIR}/gremlin/common.cmake
+    ${CMAKE_CURRENT_LIST_DIR}/gremlin/logger.cmake
+    ${CMAKE_CURRENT_LIST_DIR}/gremlin/stub.cmake
+    ${CMAKE_CURRENT_LIST_DIR}/gremlin/unit.cmake
+    ${CMAKE_CURRENT_LIST_DIR}/gremlin/plugins.cmake
+)
+    include(${file})
     endforeach()
 
+# ---------------------------| interface
 
-## --------------------------| interface |-------------------------- ##
-macro(GN_Init)
-    GN_initEnviroment()
-    GN_callEvent("onInit")
-    GN_cache(GN_lvl 0)
+GN_option(GN_staticRuntime on)
+GN_option(GN_staticLinkage on)
+
+
+GN_option(GN_pluginList 
+    ${CMAKE_CURRENT_LIST_DIR}/plugins/source/plugin.cmake
+    ${CMAKE_CURRENT_LIST_DIR}/plugins/definitions/plugin.cmake
+    ${CMAKE_CURRENT_LIST_DIR}/plugins/units/plugin.cmake
+    ${CMAKE_CURRENT_LIST_DIR}/plugins/libraries/plugin.cmake
+    ${CMAKE_CURRENT_LIST_DIR}/plugins/projectTree/plugin.cmake
+    ${CMAKE_CURRENT_LIST_DIR}/plugins/flags/plugin.cmake
+    ${CMAKE_CURRENT_LIST_DIR}/plugins/vcpkg/plugin.cmake
+    ${CMAKE_CURRENT_LIST_DIR}/plugins/gtest/plugin.cmake
+    ${CMAKE_CURRENT_LIST_DIR}/plugins/guards/plugin.cmake
+)
+
+function(GN_addPlugin plugin)
+    set(tmp ${GN_pluginList})
+    list(APPEND tmp ${plugin})
+    GN_cachef(GN_pluginList ${tmp})
+    endfunction()
+
+## initialises gremlin enviroment
+# \note: calls earier any project(...) functions
+macro(GN_init)
+    GN_counterNew(GN__lvl 0)
+    GNP_new(GN_plugins "plugins")
+    foreach(plugin ${GN_pluginList})
+        GN_initPlugin(${GN_plugins} ${plugin})
+        endforeach()
+    GNP_onGlobal(${GN_plugins} "solution_init")
     endmacro()
 
-macro(GN_Subprojects)
-    if (${GN_lvl} EQUAL 0)
-        GN_setupEnviroment()
-        GN_callEvent("onConf")
+## adds subrojects
+# \note: must be used for root-lvl subprojects
+# \note: for more deep subprojects - optionaly
+macro(GN_subprojects)
+    GN_cache(GN__inSubprojects on)
+    if (${GN__lvl} EQUAL 0)
+        GNP_onGlobal(${GN_plugins} "solution_configure")
         endif()
-
-    math(EXPR lvl "${GN_lvl} + 1")
-    GN_cache(GN_lvl ${lvl})
+    GN_counterInc(GN__lvl 1)
     foreach(path ${ARGN})
         add_subdirectory(${path})
         endforeach()
-    math(EXPR lvl "${GN_lvl} - 1")
-    GN_cache(GN_lvl ${lvl})
-
-    if (${GN_lvl} EQUAL 0)
-        GN_callEvent("onDone")
+    GN_counterDec(GN__lvl 1)
+    if (${GN__lvl} EQUAL 0)
+        GNP_onGlobal(${GN_plugins} "solution_configured")
         endif()
     endmacro()
 
-## creates a unit with the folowing params:
-#   \ Name                  - unit name
-#   \ Units         = {}    - list of depending units               | inherits
-#   \ Private       = {}    - list of private external include dirs | 
-#   \ Public        = {}    - list of public  external include dirs | inherits
-#   \ Libs          = {}    - list of depending external libs       | inherits
-#   \ Definitions   = {}    - list of preprocessor defenitions      | inherits
-#   \ bFlat         = off   - [on|off] whether the unit uses separated public/private/test directories
-#   \ Mode          = lib   - [...] type of unit will be built
-#       \ lib       - create a static library
-#       \ app       - create an executable
-function(GN_Unit Name)
-    set(OPTIONS "bFlat")
-    set(VALUES  "Mode" )
-    set(ARRAYS  "Units;Private;Public;Libs;Definitions")
-    cmake_parse_arguments(args
-        "${OPTIONS}" 
-        "${VALUES}"
-        "${ARRAYS}" ${ARGN})
-    GN_default(args_Mode  "lib")
+## creates a unit with the folowing params
+macro(GN_unit name)
+    cmake_parse_arguments(args "" "mode" "" ${ARGN})
+    GN_setDefault(args_mode "eStatic")
 
-    GN_newUnit(unit ${Name} ${args_bFlat})
-    GNU_setProperties(${unit}
-        MODE ${args_Mode}
-        PUBL ${args_Public}
-        PRIV ${args_Private}
-        LIBS ${args_Libs}
-        DEFS ${args_Definitions}
-    )
-    GNU_setSubunits(${unit} ${args_Units})
-    GNU_parseSrc(${unit})
-    
-    GN_callEvent("onSetup" ${unit})
-    GNU_parseSrc (${unit})
-    GNU_configure(${unit})
+    GNU_newUnit(unit ${name} ${args_mode} ${ARGN})
+    GNU_constructUnit(${unit} ${GN_plugins})
+    endmacro()
 
-    GN_debugHeader("${Name}")
-    GN_debug("mode"             "${${unit}_mode}")
-    GN_debug("root"             "${${unit}_dirs_root}")
-    GN_debug("units"            "${${unit}_units}")
-    GN_debug("dirs.public"      "${${unit}_dirs_public}")
-    GN_debug("dirs.private"     "${${unit}_dirs_private}")
-    GN_debug("files.public"     "${${unit}_srcs_public}")
-    GN_debug("files.private"    "${${unit}_srcs_private}")
-    GN_debug("libs"             "${${unit}_libs}" 2)
-    GN_debug("defs"             "${${unit}_defs}")
+# ---------------------------| internal
 
-    GNU_generateTarget(${unit})
-    GN_callEvent("onGen" ${unit})
-    GNU_done(${unit})
+macro(GN_initPlugin pluginManager callback)
+    if (EXISTS ${callback})
+        include(${callback})
+        init(${pluginManager} ${ARGN})
+    else()
+        GN_error("" "pluging '${callback}' doesn't exist")
+        endif()
+    endmacro()
+
+set(GN__flags ""     CACHE STRING "" FORCE)
+set(GN__1Val  "mode" CACHE STRING "" FORCE)
+set(GN__nVal  ""     CACHE STRING "" FORCE)
+function(GN_assignFlags)
+    set(GN__flags ${GN__flags} ${ARGN} CACHE STRING "" FORCE)
+    endfunction()
+function(GN_assign1Val)
+    set(GN__1Val ${GN__1Val} ${ARGN} CACHE STRING "" FORCE)
+    endfunction()
+function(GN_assignNVal)
+    set(GN__nVal ${GN__nVal} ${ARGN} CACHE STRING "" FORCE)
     endfunction()

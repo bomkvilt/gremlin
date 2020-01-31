@@ -1,0 +1,21 @@
+cmake_minimum_required(VERSION 3.15)
+include("../gremlin.cmake")
+
+# uncomment to use $ENV{VCPKG_ROOT}
+# GN_option(GN_vcpkg_vcpkgRoot "")
+
+# init must be called earlier than any project(...) function
+GN_init()
+
+# solution name
+project(test)
+
+# add subprojects
+# \note: root-lvl subdirectories must be added with the way only
+GN_subprojects(
+    libs/interface
+    libs/flat
+    libs/complex
+    libs/noTests
+    exec
+    )

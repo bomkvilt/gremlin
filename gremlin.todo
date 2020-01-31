@@ -1,0 +1,23 @@
+Features:
+    ✔ public/private directories, set up according to passed variables or global options @done(20-01-30 13:57)
+    ✔ public/private definitions, set up according to passed variables @done(20-01-30 15:04)
+    ✔ optionaly, flat project structure @done(20-01-30 13:58)
+    ✔ external libraries (modern cmake stile) @done(20-01-30 19:03)
+    ✔ external modules @done(20-01-30 18:08)
+    ✔ solution tree structure @done(20-01-30 18:48)
+    output types:
+        ✔ static library @done(20-01-30 15:27)
+        ☐ shared library
+        ✔ interface library @done(20-01-30 18:08)
+        ✔ application @done(20-01-30 15:27)
+    ☐ option ovirriding
+
+Plugins:
+    ✔ flags @done(20-01-31 20:25)
+    ☐ cotire
+    ✔ include guards @done(20-01-31 16:58)
+    ✔ gtest @done(20-01-31 19:27)
+    ✔ vcpkg @done(20-01-31 13:43)
+
+Bugs:
+    ✔ unit.args[multi_value_key] gets out of value range @done(20-01-30 20:03)
