@@ -1,8 +1,9 @@
 #include <iostream>
 #include "SQLiteCpp/SQLiteCpp.h"
+#include "lool.hpp"
 
 
-#if TESTLIB != 16
+#if TESTLIB != 16 || !defined(NOT_MODIFIED)
 void www() {
 	static_assert(false);
 }

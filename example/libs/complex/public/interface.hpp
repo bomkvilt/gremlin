@@ -1,3 +1,6 @@
+#ifndef COMPLEX__INTERFACE_HPP
+#define COMPLEX__INTERFACE_HPP
 
 
 int Hoy();
+#endif //!COMPLEX__INTERFACE_HPP

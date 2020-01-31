@@ -15,7 +15,7 @@ Features:
 Plugins:
     ☐ flags
     ☐ cotire
-    ☐ include guards
+    ✔ include guards @done(20-01-31 16:58)
     ☐ gtest
     ✔ vcpkg @done(20-01-31 13:43)
 

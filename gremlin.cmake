@@ -31,6 +31,7 @@ GN_option(GN_pluginList
     ${CMAKE_CURRENT_LIST_DIR}/plugins/libraries/plugin.cmake
     ${CMAKE_CURRENT_LIST_DIR}/plugins/projectTree/plugin.cmake
     ${CMAKE_CURRENT_LIST_DIR}/plugins/vcpkg/plugin.cmake
+    ${CMAKE_CURRENT_LIST_DIR}/plugins/guards/plugin.cmake
 )
 
 ## initialises gremlin enviroment
