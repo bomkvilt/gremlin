@@ -13,7 +13,7 @@ Features:
     ☐ option ovirriding
 
 Plugins:
-    ☐ flags
+    ✔ flags @done(20-01-31 20:25)
     ☐ cotire
     ✔ include guards @done(20-01-31 16:58)
     ✔ gtest @done(20-01-31 19:27)

@@ -20,8 +20,8 @@ foreach(file
 
 # ---------------------------| interface
 
-GN_option(GN_staticRuntime off)
-GN_option(GN_staticLinkage on )
+GN_option(GN_staticRuntime on)
+GN_option(GN_staticLinkage on)
 
 
 GN_option(GN_pluginList 
@@ -30,6 +30,7 @@ GN_option(GN_pluginList
     ${CMAKE_CURRENT_LIST_DIR}/plugins/units/plugin.cmake
     ${CMAKE_CURRENT_LIST_DIR}/plugins/libraries/plugin.cmake
     ${CMAKE_CURRENT_LIST_DIR}/plugins/projectTree/plugin.cmake
+    ${CMAKE_CURRENT_LIST_DIR}/plugins/flags/plugin.cmake
     ${CMAKE_CURRENT_LIST_DIR}/plugins/vcpkg/plugin.cmake
     ${CMAKE_CURRENT_LIST_DIR}/plugins/gtest/plugin.cmake
     ${CMAKE_CURRENT_LIST_DIR}/plugins/guards/plugin.cmake
