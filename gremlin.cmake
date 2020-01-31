@@ -4,6 +4,8 @@ GN_clearWithPref("GN_" "GNU_" "GNP_")
 
 # ---------------------------| include system components
 
+set(GN_root ${CMAKE_CURRENT_LIST_DIR})
+set(GN_build_root ${CMAKE_CURRENT_BINARY_DIR})
 set(GN_solution_root ${CMAKE_CURRENT_SOURCE_DIR})
 
 foreach(file
@@ -18,27 +20,45 @@ foreach(file
 
 # ---------------------------| interface
 
+GN_option(GN_staticRuntime off)
+GN_option(GN_staticLinkage on )
+
+
 GN_option(GN_pluginList 
     ${CMAKE_CURRENT_LIST_DIR}/plugins/source/plugin.cmake
     ${CMAKE_CURRENT_LIST_DIR}/plugins/definitions/plugin.cmake
     ${CMAKE_CURRENT_LIST_DIR}/plugins/units/plugin.cmake
     ${CMAKE_CURRENT_LIST_DIR}/plugins/libraries/plugin.cmake
     ${CMAKE_CURRENT_LIST_DIR}/plugins/projectTree/plugin.cmake
+    ${CMAKE_CURRENT_LIST_DIR}/plugins/vcpkg/plugin.cmake
 )
 
 ## initialises gremlin enviroment
+# \note: calls earier any project(...) functions
 macro(GN_init)
+    GN_counterNew(GN__lvl 0)
     GNP_new(GN_plugins "plugins")
     foreach(plugin ${GN_pluginList})
         GN_initPlugin(${GN_plugins} ${plugin})
         endforeach()
+    GNP_onGlobal(${GN_plugins} "solution_init")
     endmacro()
 
 ## adds subrojects
+# \note: must be used for root-lvl subprojects
+# \note: for more deep subprojects - optionaly
 macro(GN_subprojects)
+    if (${GN__lvl} EQUAL 0)
+        GNP_onGlobal(${GN_plugins} "solution_configure")
+        endif()
+    GN_counterInc(GN__lvl 1)
     foreach(path ${ARGN})
         add_subdirectory(${path})
         endforeach()
+    GN_counterDec(GN__lvl 1)
+    if (${GN__lvl} EQUAL 0)
+        GNP_onGlobal(${GN_plugins} "solution_configured")
+        endif()
     endmacro()
 
 ## creates a unit with the folowing params

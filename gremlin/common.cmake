@@ -1,7 +1,15 @@
 # ---------------------------| global variables
 
-macro(GN_option name)
+macro(GN_cache name)
     set(${name} "${ARGN}" CACHE STRING "")
+    endmacro()
+
+macro(GN_cachef name)
+    set(${name} "${ARGN}" CACHE STRING "" FORCE)
+    endmacro()
+
+macro(GN_option name)
+    GN_cache(${name} ${ARGN})
     endmacro()
 
 macro(GN_clearWithPref)
@@ -15,6 +23,20 @@ macro(GN_clearWithPref)
             endforeach()
         endforeach()
     endmacro()
+
+function(GN_counterNew name value)
+    GN_cache(${name} "${value}")
+    endfunction()
+
+function(GN_counterInc name value)
+    math(EXPR lvl "${${name}} + ${value}")
+    GN_cache(${name} "${lvl}")
+    endfunction()
+
+function(GN_counterDec name value)
+    math(EXPR lvl "${${name}} - ${value}")
+    GN_cache(${name} "${lvl}")
+    endfunction()
 
 # ---------------------------| functions
 

@@ -1,4 +1,6 @@
 #include <iostream>
+#include "SQLiteCpp/SQLiteCpp.h"
+
 
 #if TESTLIB != 16
 void www() {
@@ -8,5 +10,12 @@ void www() {
 
 void main()
 {
-	std::cout << "ez game" << std::endl;
+	try
+	{
+		SQLite::Database("ex.sq3");
+	}
+	catch (const std::exception&)
+	{
+		std::cout << "ez game" << std::endl;
+	}
 }

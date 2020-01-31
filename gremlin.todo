@@ -10,7 +10,14 @@ Features:
         ☐ shared library
         ✔ interface library @done(20-01-30 18:08)
         ✔ application @done(20-01-30 15:27)
+    ☐ option ovirriding
+
+Plugins:
+    ☐ flags
+    ☐ cotire
+    ☐ include guards
+    ☐ gtest
+    ✔ vcpkg @done(20-01-31 13:43)
 
 Bugs:
-    ☐ unit.args[multi_value_key] gets out of value range
-    
+    ✔ unit.args[multi_value_key] gets out of value range @done(20-01-30 20:03)

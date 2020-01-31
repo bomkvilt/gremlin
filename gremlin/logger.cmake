@@ -17,6 +17,38 @@ function(GN_error key)
     GN_log("ERROR" "${key}" "${ARGN}")
     endfunction()
 
+
+function(GN_debugHeader)
+    string(REPEAT "-" 80 line)
+    GN_log("DEBUG" "${line}" "${ARGN}")
+    endfunction()
+
+function(GN_infoHeader)
+    string(REPEAT "-" 80 line)
+    GN_log("INFO" "${line}" "${ARGN}")
+    endfunction()
+
+function(GN_errorHeader)
+    string(REPEAT "-" 80 line)
+    GN_log("ERROR" "${line}" "${ARGN}")
+    endfunction()
+
+
+function(GN_debugLine)
+    string(REPEAT "-" 80 line)
+    GN_log("DEBUG" "" "${line}")
+    endfunction()
+
+function(GN_infoLine)
+    string(REPEAT "-" 80 line)
+    GN_log("INFO" "" "${line}")
+    endfunction()
+
+function(GN_errorLine)
+    string(REPEAT "-" 80 line)
+    GN_log("ERROR" "" "${line}")
+    endfunction()
+
 # ---------------------------|
 
 function(GN_log lvl key msg)
