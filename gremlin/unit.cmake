@@ -53,7 +53,7 @@ function(GNU_newUnit _result name mode)
     GN_return(${name})
     endfunction()
 
-function(GNU_constructUnit unit pluginManager)
+macro(GNU_constructUnit unit pluginManager)
     GNP_on(${pluginManager} "construct" ${unit})
     GNU_scanDirs(${unit})
 
@@ -62,7 +62,7 @@ function(GNU_constructUnit unit pluginManager)
     GNU_generateObject(${unit})
 
     GNP_on(${pluginManager} "postGenerate" ${unit})
-    endfunction()
+    endmacro()
 
 # ---------------------------| plugin inteface
 
