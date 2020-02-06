@@ -11,6 +11,7 @@ Features:
         ✔ interface library @done(20-01-30 18:08)
         ✔ application @done(20-01-30 15:27)
     ☐ option ovirriding
+    ✘ android support @cancelled(20-02-06 17:38)
 
 Plugins:
     ✔ flags @done(20-01-31 20:25)
@@ -21,3 +22,6 @@ Plugins:
 
 Bugs:
     ✔ unit.args[multi_value_key] gets out of value range @done(20-01-30 20:03)
+
+tasks:
+    ☐ make vcpkg's code more readable

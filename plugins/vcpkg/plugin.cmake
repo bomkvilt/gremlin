@@ -30,6 +30,9 @@ macro(GN_vcpkg)
         GN_error("" " ")
         endif()
     GN_info("vcpkg triplet" "${VCPKG_TARGET_TRIPLET}")
+    if (CMAKE_SYSTEM_NAME STREQUAL "Android")
+        GN_vcpkg_installRawName("boost-build:x86-windows")
+        endif()
     endmacro()
 
 function(GN_vcpkg_install name)
@@ -42,12 +45,19 @@ function(GN_vcpkg_install name)
         GN_error("package name cannot be empty!")
         endif()
     
-    set(name "${name}:${triplet}")
+    GN_vcpkg_installRawName("${name}:${triplet}")
+    endfunction()
+
+function(GN_vcpkg_installRawName name)
     if (NOT GNZ_vcpkg_installed_${name})
         GN_infoLine()
         GN_infoHeader("VCPKG package instalations")
         GN_info("installing package..." ${name})
-        execute_process(COMMAND ${GNZ_vcpkg_vcpkgExec} install ${name} --vcpkg-root ${GN_vcpkg_vcpkgRoot}
+        if (CMAKE_SYSTEM_NAME STREQUAL "Android")
+            set(ENV{ANDROID_NDK_HOME} ${ANDROID_NDK_HOME})
+            endif()
+        execute_process(
+            COMMAND ${GNZ_vcpkg_vcpkgExec} install ${name} --vcpkg-root ${GN_vcpkg_vcpkgRoot}
             WORKING_DIRECTORY   ${GN_vcpkg_vcpkgRoot}
             RESULTS_VARIABLE    result
         )
@@ -122,10 +132,29 @@ function(GN_vcpkg_download)
     endfunction()
 
 macro(GN_vcpkg_setVariables)
-    if (GNZ_vcpkg_secondLaunch)
+    # try to determinate NDK's location
+    if (CMAKE_SYSTEM_NAME STREQUAL "Android")
+        if (NOT "${ANDROID_NDK_HOME}" STREQUAL "")
+        else()
+            if    (NOT "$ENV{ANDROID_NDK_HOME}" STREQUAL "")
+                set(tmp $ENV{ANDROID_NDK_HOME})
+            elseif(NOT "${ANDROID_NDK_ROOT}" STREQUAL "")
+                set(tmp ${ANDROID_NDK_ROOT})
+            elseif(NOT "$ENV{ANDROID_NDK_ROOT}" STREQUAL "")
+                set(tmp $ENV{ANDROID_NDK_ROOT})
+            else()
+                GN_error("" "Cannot determinate Android NDK's root (ANDROID_NDK_HOME or ANDROID_NDK_ROOT)")
+                endif()
+            string(REPLACE "\\" "/" tmp ${tmp})
+            GN_cachef(ANDROID_NDK_HOME ${tmp})
+            endif()
+        GN_info("android NDK" "${ANDROID_NDK_HOME}")
+    # set triplet
+    elseif(GNZ_vcpkg_secondLaunch)
         GN_vcpkg_getTriplet(newTriplet ${GNZ_vcpkg_basicTrplet})
         GN_cachef(VCPKG_TARGET_TRIPLET ${newTriplet})
         endif()
+    # set vcpkg's toolset
     GN_cachef(CMAKE_TOOLCHAIN_FILE "${GN_vcpkg_vcpkgRoot}/scripts/buildsystems/vcpkg.cmake")
     endmacro()
 
