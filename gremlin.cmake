@@ -20,10 +20,6 @@ foreach(file
 
 # ---------------------------| interface
 
-GN_option(GN_staticRuntime on)
-GN_option(GN_staticLinkage on)
-
-
 GN_option(GN_pluginList 
     ${CMAKE_CURRENT_LIST_DIR}/plugins/source/plugin.cmake
     ${CMAKE_CURRENT_LIST_DIR}/plugins/definitions/plugin.cmake
@@ -45,6 +41,9 @@ function(GN_addPlugin plugin)
 ## initialises gremlin enviroment
 # \note: calls earier any project(...) functions
 macro(GN_init)
+    GN_option(GN_staticRuntime off)
+    GN_option(GN_staticLinkage on)
+
     GN_counterNew(GN__lvl 0)
     GNP_new(GN_plugins "plugins")
     foreach(plugin ${GN_pluginList})
