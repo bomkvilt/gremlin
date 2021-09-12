@@ -18,11 +18,14 @@ macro(init pluginManager)
     endmacro()
 
 macro(GN_vcpkg)
+    # >> finish vcpkg configuration
     if (NOT GNZ_vcpkg_secondLaunch)
         if ("${VCPKG_TARGET_TRIPLET}" STREQUAL "")
             GN_error("" "vcpkg isn't installed!")
             endif()
+        # \todo why we need to abort execution????
         GN_cachef(GNZ_vcpkg_basicTrplet ${VCPKG_TARGET_TRIPLET})
+        # abort execution 
         GN_infoLine()
         GN_infoHeader("VCPKG is configured;To configure the project re-run cmake build")
         GN_cachef(GNZ_vcpkg_secondLaunch on)
@@ -73,11 +76,11 @@ function(GN_vcpkg_installRawName name)
 
 function(GN_vcpkg_normaliseVariables)
     if("${GN_vcpkg_vcpkgRoot}" STREQUAL "")
-        string(REPLACE "\\" "/" tmp $ENV{VCPKG_ROOT})
+        string(REPLACE "\\" "/" tmp "$ENV{VCPKG_ROOT}")
         GN_cachef(GN_vcpkg_vcpkgRoot ${tmp})
         endif()
     if("${GN_vcpkg_vcpkgRoot}" STREQUAL "")
-        GN_error("" "VCPKG_ROOT is not set")
+        GN_error("" "ENV:VCPKG_ROOT is not set")
         endif()
     if (NOT IS_ABSOLUTE ${GN_vcpkg_vcpkgRoot})
         GN_cachef(GN_vcpkg_vcpkgRoot "${GN_build_root}/${GN_vcpkg_vcpkgRoot}")
