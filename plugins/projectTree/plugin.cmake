@@ -3,7 +3,7 @@ GN_option(GN_tree_root ${CMAKE_CURRENT_LIST_DIR})
 
 
 function(init pluginManager)
-    GNP_bind(${pluginManager} "postGenerate" ${GN_tree_root}/events.cmake)
+    GNP_bind(${pluginManager} "unit_processTarget" ${GN_tree_root}/events.cmake)
     GNP_bind(${pluginManager} "solution_configure" ${GN_tree_root}/events.cmake)
     endfunction()
 

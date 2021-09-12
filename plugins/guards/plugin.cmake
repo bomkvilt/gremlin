@@ -3,7 +3,7 @@ GN_option(GN_guards_root ${CMAKE_CURRENT_LIST_DIR})
 GN_option(GN_guards_extentions ".h" ".hpp")
 
 function(init pluginManager)
-    GNP_bind(${pluginManager} "preGenerate" ${GN_guards_root}/events.cmake)
+    GNP_bind(${pluginManager} "unit_processSources" ${GN_guards_root}/events.cmake)
     list(TRANSFORM GN_guards_extentions APPEND "$" OUTPUT_VARIABLE exts)
     list(JOIN exts "|" exts)
     string(REPLACE "." "\\." exts ${exts})

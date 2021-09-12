@@ -3,7 +3,7 @@ GN_option(GN_flags_root ${CMAKE_CURRENT_LIST_DIR})
 GN_option(GN_cppVersion 17)
 
 macro(init pluginManager)
-    GNP_bind(${pluginManager} "postGenerate" ${GN_flags_root}/events.cmake)
+    GNP_bind(${pluginManager} "unit_processTarget" ${GN_flags_root}/events.cmake)
     endmacro()
 
 macro(GN_flags unit)

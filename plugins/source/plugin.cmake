@@ -5,7 +5,7 @@ GN_option(GN_source_root ${CMAKE_CURRENT_LIST_DIR})
 
 
 function(init pluginManager)
-    GNP_bind(${pluginManager} "construct" ${GN_source_root}/events.cmake)
+    GNP_bind(${pluginManager} "unit_constructMetadata" ${GN_source_root}/events.cmake)
     GN_assignFlags("bFlat")
     GN_assignNVal("dirs_public" "dirs_private" "extra_src")
     endfunction()

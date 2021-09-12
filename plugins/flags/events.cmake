@@ -1,6 +1,6 @@
 
 macro(event event unit)
-    if ("${event}" STREQUAL "postGenerate")
+    if ("${event}" STREQUAL "unit_processTarget")
         GN_flags(${unit})
         endif()
     endmacro()

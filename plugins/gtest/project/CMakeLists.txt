@@ -1,6 +1,7 @@
 include(GoogleTest)
 
 macro(GN_gtest_addTest unit)
+    # create an executable that connects passed 'unit' and gtest's libraries 
     set(test "${GN_gtest_prefix}${unit}")
     GN_unit(${test} bFlat
         mode  "eApp"
@@ -15,6 +16,7 @@ macro(GN_gtest_addTest unit)
     target_link_libraries(${unit} PRIVATE GTest::GTest)
     endmacro()
 
+# >> main: auto_execute
 foreach(unit ${GN_gtest_units})
     GN_gtest_addTest(${unit})
     endforeach()

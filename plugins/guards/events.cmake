@@ -1,6 +1,6 @@
 
 function(event event unit)
-    if ("${event}" STREQUAL "preGenerate")
+    if ("${event}" STREQUAL "unit_processSources")
         GN_guards(${unit})
         endif()
     endfunction()

@@ -82,6 +82,9 @@ macro(GN_unit name)
 
 # ---------------------------| internal
 
+# >> create a function that initializes all assigned plugins
+# \note @callback function must have unique name since it defines 
+#       in a global namespace
 macro(GN_initPlugin pluginManager callback)
     if (EXISTS ${callback})
         include(${callback})
@@ -91,9 +94,15 @@ macro(GN_initPlugin pluginManager callback)
         endif()
     endmacro()
 
-set(GN__flags ""     CACHE STRING "" FORCE)
-set(GN__1Val  "mode" CACHE STRING "" FORCE)
-set(GN__nVal  ""     CACHE STRING "" FORCE)
+# >> init option variables
+# \note passed key | flag names parses with an inbuilt @cmake_parse_arguments function.
+#       So, it's recommended to use ALL_CAPICAL key notations
+# \note is a unit's target type
+# \sa   @GNU_newUnit
+set(GN__flags ""     CACHE STRING "" FORCE) # << flags. If exists -> true
+set(GN__1Val  "mode" CACHE STRING "" FORCE) # << key-value pairs  in 1:1 relation
+set(GN__nVal  ""     CACHE STRING "" FORCE) # << key-value groups in 1:n relation
+# >> create option assignment functions
 function(GN_assignFlags)
     set(GN__flags ${GN__flags} ${ARGN} CACHE STRING "" FORCE)
     endfunction()

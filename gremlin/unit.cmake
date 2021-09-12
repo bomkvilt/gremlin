@@ -13,7 +13,7 @@
 #
 # Unit structure: (c++/go like pseudocode)
 # class CUnit {
-#   EMode       mode; // buid mode (see above)
+#   EMode       mode; // buid mode (see below)
 #   std::string name; // project name
 #   
 #   std::vector<string> subunits_1;     // list of units are includded the unit inside (public)
@@ -35,12 +35,13 @@
 #   , eDynamic
 #   , eApp
 #   , eDependency
+#   , eTests
 # }
 # ---------------------------| public interface
 GN_option(GN_unitPrefix "GN_U")
-GN_option(GN_codeExts   ".c" ".cpp")
+GN_option(GN_sourceCodeExtentions ".c" ".cpp")
 
-
+# >> create a new empty unit
 function(GNU_newUnit _result name mode)
     project(${name})
     GNU_assertMode(${mode})
@@ -53,15 +54,20 @@ function(GNU_newUnit _result name mode)
     GN_return(${name})
     endfunction()
 
+# >> parse passed unit's settings and create CMake targets
+# \note number of targets might be not equal to 1
 macro(GNU_constructUnit unit pluginManager)
-    GNP_on(${pluginManager} "construct" ${unit})
+    # scan configured directories and fill in file lists for all source types
+    # \sa unit."srcTypes", unit."srcFiles.${type}"
+    GNP_on(${pluginManager} "unit_modifyArguments"   ${unit})
+    GNP_on(${pluginManager} "unit_constructMetadata" ${unit})
     GNU_scanDirs(${unit})
 
-    GNP_on(${pluginManager} "preGenerate" ${unit})
+    # create CMake targets
+    GNP_on(${pluginManager} "unit_processSources" ${unit})
     GNU_fixIntegrity  (${unit})
     GNU_generateObject(${unit})
-
-    GNP_on(${pluginManager} "postGenerate" ${unit})
+    GNP_on(${pluginManager} "unit_processTarget" ${unit})
     endmacro()
 
 # ---------------------------| plugin inteface
@@ -172,15 +178,22 @@ function(GNU_assertUnit unit)
     endfunction()
 
 function(GNU_parseArgs unit)
+    # remove all variables with the prefix
     GN_clearWithPrefix("__args_")
+    # parse variable
+    # \note parsed variable start with '__args_'
     cmake_parse_arguments(__args
         "${GN__flags}"
         "${GN__1Val}"
         "${GN__nVal}"
         ${ARGN})
+    # iterate throw all the variables
+    # \note the variables are taken from list of CMake variables
     get_cmake_property(variables VARIABLES)
     foreach (variable ${variables})
         if ("${variable}" MATCHES "^__args_")
+            #   ${variable}  is a name a parsed key with the prefix
+            # ${${variable}} is a value the key
             string(REGEX REPLACE "^__args_" "" key ${variable})
             set(value ${${variable}})
             GNU_set(${unit} "args.${key}" ${value})
@@ -191,6 +204,10 @@ function(GNU_parseArgs unit)
 function(GNU_getArgs _result unit name)
     GNU_get(tmp ${unit} "args.${name}")
     GN_return(${tmp})
+    endfunction()
+
+function(GNU_setArgs unit name)
+    GNU_set(${unit} "args.${name}" ${ARGN})
     endfunction()
 
 function(GNU_scanDirs unit)
@@ -214,21 +231,24 @@ function(GNU_assertMode mode)
     if (("${mode}" STREQUAL "eStatic")
     OR  ("${mode}" STREQUAL "eDynamic")
     OR  ("${mode}" STREQUAL "eApp")
-    OR  ("${mode}" STREQUAL "eDependency"))
+    OR  ("${mode}" STREQUAL "eDependency")
+    OR  ("${mode}" STREQUAL "eTests"))
         return()
         endif()
-    GN_error("ASSERT" "passed mode '${mode}' is not in list of: ;- eApp;- eStatic;- eDynamic;- eDependency")
+    GN_error("ASSERT" "passed mode '${mode}' is not in list of: ;- eApp;- eStatic;- eDynamic;- eDependency;- eTests")
     endfunction()
 
-function(GNU_genCodeExtRE _result)
-    list(TRANSFORM GN_codeExts APPEND "$" OUTPUT_VARIABLE exts)
+function(GNU_genSorceExtsRegex _result)
+    # \todo what symbol '$' means?
+    list(TRANSFORM GN_sourceCodeExtentions APPEND "$" OUTPUT_VARIABLE exts)
     list(JOIN exts "|" exts)
     string(REPLACE "." "\\." exts ${exts})
     GN_return(${exts})
     endfunction()
 
-function(GNU_isCodeUnit _result unit)
-    GNU_genCodeExtRE(re)
+function(GNU_isCompilableUnit _result unit)
+    GNU_genSorceExtsRegex(re)
+
     GNU_get(types ${unit} "srcTypes")
     foreach(type  ${types})
         GNU_get(files ${unit} "srcFiles.${type}")
@@ -242,27 +262,34 @@ function(GNU_isCodeUnit _result unit)
     endfunction()
 
 function(GNU_fixIntegrity unit)
+    ##  we need to cosider a case when a 'library' entity still has no
+    #   .c | .cpp source code to be compiled. This case produces compiler's error
+    #   that can be avoided with changing of the entity's target type on 'eDependency'
+    # \note application types line 'eApp' and 'eTests' must
+    #   contain at least one cpp file, so, it's not necessary
+    #   to be consider the cases.
     GNU_get(mode ${unit} "mode")
-    if ("${mode}" STREQUAL "eDependency"
-    OR  "${mode}" STREQUAL "eApp")
-        return()
-        endif()
-    GNU_isCodeUnit(ok ${unit})
-    if (NOT ok)
-        GNU_set(${unit} "mode" "eDependency")
+    if ("${mode}" STREQUAL "eStatic"
+    OR  "${mode}" STREQUAL "eDynamic")
+        GNU_isCompilableUnit(ok ${unit})
+        if (NOT ok)
+            GNU_set(${unit} "mode" "eDependency")
+            endif()
         endif()
     endfunction()
 
 function(GNU_generateObject unit)
     GNU_get(mode ${unit} "mode")
     if     ("${mode}" STREQUAL "eStatic")
-        GNU_generate_stat(${unit})
+        GNU_generate_static_target(${unit})
     elseif ("${mode}" STREQUAL "eDynamic")
-        GNU_generate_dyn(${unit})
+        GNU_generate_dynamic_target(${unit})
     elseif ("${mode}" STREQUAL "eApp")
         GNU_generate_app(${unit})
     elseif ("${mode}" STREQUAL "eDependency")
-        GNU_generate_dep(${unit})
+        GNU_generate_dependency_target(${unit})
+    elseif ("${mode}" STREQUAL "eTests")
+        GNU_generate_test_target(${unit})
         endif()
     GNU_addSourcesToTarget(${unit})
     GNU_addSourcesToProject(${unit})
@@ -271,11 +298,11 @@ function(GNU_generateObject unit)
     GNU_linkLibrariesToTarget(${unit})
     endfunction()
 
-function(GNU_generate_stat unit)
+function(GNU_generate_static_target unit)
     add_library(${unit} STATIC)
     endfunction()
 
-function(GNU_generate_dyn unit)
+function(GNU_generate_dynamic_target unit)
     add_library(${unit} SHARED)
     endfunction()
 
@@ -283,10 +310,16 @@ function(GNU_generate_app unit)
     add_executable(${unit})
     endfunction()
 
-function(GNU_generate_dep unit)
+function(GNU_generate_dependency_target unit)
     add_library(${unit} STATIC)
     target_link_libraries(${unit} PRIVATE GN_stub)
     source_group(TREE ${GN_stub_root} FILES ${GN_stub_cpp})
+    endfunction()
+
+function(GNU_generate_test_target unit)
+    # the function must be overriden with a test module
+    # by default we will throw an error
+    GN_error("" "GNU_generate_test_target must be overriden with a unit test gremline module to support 'eTests' mode")
     endfunction()
 
 function(GNU_addSourcesToTarget unit)

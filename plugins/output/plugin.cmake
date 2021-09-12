@@ -3,7 +3,7 @@ GN_option(GN_output_root ${CMAKE_CURRENT_LIST_DIR})
 GN_option(GN_cppVersion 17)
 
 macro(init pluginManager)
-    GNP_bind(${pluginManager} "postGenerate" ${GN_output_root}/events.cmake)
+    GNP_bind(${pluginManager} "unit_processTarget" ${GN_output_root}/events.cmake)
     GN_assign1Val("outdir")
     GN_assign1Val("copyTo")
     GN_assign1Val("debugFolder")
